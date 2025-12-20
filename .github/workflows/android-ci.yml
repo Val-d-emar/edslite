@@ -84,6 +84,11 @@ jobs:
         if: always()
         run: gradle :app:tasks
         
+      # --- ДИАГНОСТИЧЕСКИЙ ШАГ ---
+      # Этот шаг покажет точную структуру папок
+      - name: List build outputs
+        run: ls -R app/build/outputs
+
       # Шаг 6: Загрузка APK как артефакта
       # Находим собранный APK и загружаем его с помощью action 'upload-artifact'.
       # После этого его можно будет скачать со страницы workflow.
@@ -93,5 +98,5 @@ jobs:
         with:
           # Имя артефакта, который можно скачать со страницы workflow
           name: preview-eds-apk
-          # Путь к файлу APK. Стандартный путь для debug-сборки.
-          path: app/build/outputs/apk/lite/licCheckNone/noinet/nofsml/debug/*.apk
+          # Путь к файлу APK. Рекурсивный поиск APK во всей папке 'apk'
+          path: app/build/outputs/apk/**/*.apk
