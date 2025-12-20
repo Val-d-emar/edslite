@@ -22,16 +22,28 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
-      # Шаг 3: Скачивание, распаковка NDK и создание local.properties
-      - name: Download and set up NDK r13b
+      # Шаг 3: Кеширование NDK
+      # Этот шаг попытается восстановить NDK из кеша GitHub
+      - name: Cache NDK
+        id: cache-ndk # Даем шагу id, чтобы ссылаться на его результат
+        uses: actions/cache@v4
+        with:
+          path: ~/android-ndk-r13b
+          key: ndk-r13b-${{ runner.os }}
+
+      # Шаг 4: Скачивание NDK, если его нет в кеше
+      # Этот шаг выполнится только если предыдущий шаг не нашел кеш
+      - name: Download and extract NDK
+        if: steps.cache-ndk.outputs.cache-hit != 'true'
         run: |
-          # Скачиваем именно ту версию, что указана в README
           wget -q https://dl.google.com/android/repository/android-ndk-r13b-linux-x86_64.zip
-          # Распаковываем в домашнюю директорию
           unzip -q android-ndk-r13b-linux-x86_64.zip -d $HOME
-          # Создаем local.properties и прописываем путь к NDK
-          echo "ndk.dir=$HOME/android-ndk-r13b" > local.properties
-          echo "Created local.properties with NDK path"
+          echo "NDK downloaded and extracted."
+          
+      # Шаг 5: Создание файла local.properties
+      # Этот шаг выполняется всегда, чтобы прописать путь к NDK (скачанному или из кеша)
+      - name: Create local.properties
+        run: echo "ndk.dir=$HOME/android-ndk-r13b" > local.properties          
 
       # Шаг 5: Сборка debug APK
       # Запускаем задачу 'assembleDebug', которая создает неподписанный APK.
