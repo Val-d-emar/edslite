@@ -8,17 +8,21 @@ on:
 jobs:
   build:
     # Используем старую версию Ubuntu, которая нативно поддерживает libncurses5
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
       # Шаг 1: Клонирование репозитория
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # - name: Install required dependencies
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y libncurses5
+      # Шаг 2: Установка недостающей зависимости для NDK r13b
+      # Скачиваем и устанавливаем libncurses5 и ее зависимость libtinfo5 из архива Ubuntu 18.04
+      - name: Install legacy dependencies
+        run: |
+          wget http://archive.ubuntu.com/ubuntu/pool/main/n/ncurses/libtinfo5_6.1-1ubuntu1.18.04_amd64.deb
+          wget http://archive.ubuntu.com/ubuntu/pool/main/n/ncurses/libncurses5_6.1-1ubuntu1.18.04_amd64.deb
+          sudo dpkg -i libtinfo5_6.1-1ubuntu1.18.04_amd64.deb
+          sudo dpkg -i libncurses5_6.1-1ubuntu1.18.04_amd64.deb
 
       # Шаг 2: Установка Java (JDK)
       - name: Set up JDK 8
