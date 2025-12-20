@@ -22,30 +22,23 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
-      # Шаг 3: Кеширование зависимостей Gradle
-      # Этот шаг необязателен, но он КРИТИЧЕСКИ важен для ускорения будущих сборок.
-      # Он сохраняет скачанные библиотеки между запусками.
-      # - name: Cache Gradle packages
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: |
-      #       ~/.gradle/caches
-      #       ~/.gradle/wrapper
-      #     key: ${{ runner.os }}-gradle-${{ hashFiles('**/**/*.gradle*', '**/**/gradle-wrapper.properties') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-gradle-
-
-      # Шаг 4: Предоставление прав на выполнение для Gradle Wrapper
-      # В Git может не сохраниться флаг "исполняемый", поэтому добавляем его вручную.
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      # Шаг 3: Скачивание, распаковка NDK и создание local.properties
+      - name: Download and set up NDK r13b
+        run: |
+          # Скачиваем именно ту версию, что указана в README
+          wget -q https://dl.google.com/android/repository/android-ndk-r13b-linux-x86_64.zip
+          # Распаковываем в домашнюю директорию
+          unzip -q android-ndk-r13b-linux-x86_64.zip -d $HOME
+          # Создаем local.properties и прописываем путь к NDK
+          echo "ndk.dir=$HOME/android-ndk-r13b" > local.properties
+          echo "Created local.properties with NDK path"
 
       # Шаг 5: Сборка debug APK
       # Запускаем задачу 'assembleDebug', которая создает неподписанный APK.
       - name: Build with Gradle
-        # run: ./gradlew assembleDebug
+        # run: gradle assembleLiteDebug
         # опции для ускорения
-        run: ./gradlew assembleLiteDebug --no-daemon --parallel
+        run: gradle assembleLiteDebug --no-daemon --parallel
 
 
       # Шаг 6: Загрузка APK как артефакта
