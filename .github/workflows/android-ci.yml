@@ -51,7 +51,7 @@ jobs:
       # Шаг 5: Сборка debug APK
       # Запускаем задачу 'assembleDebug', которая создает неподписанный APK.
       - name: Build with Gradle
-        run: gradle assembleLiteDebug
+        run: gradle :app:assembleLiteDebug
         # опции для ускорения
         # run: gradle assembleLiteDebug --no-daemon --parallel
 
