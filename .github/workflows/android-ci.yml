@@ -7,17 +7,18 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # Используем старую версию Ubuntu, которая нативно поддерживает libncurses5
+    runs-on: ubuntu-20.04
 
     steps:
       # Шаг 1: Клонирование репозитория
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install required dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libncurses5
+      # - name: Install required dependencies
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y libncurses5
 
       # Шаг 2: Установка Java (JDK)
       - name: Set up JDK 8
