@@ -22,6 +22,11 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
+      - name: Set up Gradle 5.6.4
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '5.6.4'    
+
       # Шаг 3: Кеширование NDK
       # Этот шаг попытается восстановить NDK из кеша GitHub
       - name: Cache NDK
@@ -43,20 +48,14 @@ jobs:
       # Шаг 5: Создание файла local.properties
       # Этот шаг выполняется всегда, чтобы прописать путь к NDK (скачанному или из кеша)
       - name: Create local.properties
-        run: echo "ndk.dir=$HOME/android-ndk-r13b" > local.properties          
-
-      # Шаг 6: Генерируем Gradle Wrapper нужной версии прямо в CI
-      # Используем системный gradle только для этой одной задачи
-      - name: Generate Gradle Wrapper
-        run: gradle wrapper --gradle-version 5.6.4 && chmod +x gradlew
+        run: echo "ndk.dir=$HOME/android-ndk-r13b" > local.properties              
                 
       # Шаг 5: Сборка debug APK
       # Запускаем задачу 'assembleDebug', которая создает неподписанный APK.
       - name: Build with Gradle
-        # run: gradle assembleLiteDebug
+        run: gradle assembleLiteDebug
         # опции для ускорения
         # run: gradle assembleLiteDebug --no-daemon --parallel
-        run: ./gradlew assembleLiteDebug
 
       # Шаг 6: Загрузка APK как артефакта
       # Находим собранный APK и загружаем его с помощью action 'upload-artifact'.
