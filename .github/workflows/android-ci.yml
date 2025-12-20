@@ -51,9 +51,13 @@ jobs:
       # Шаг 5: Сборка debug APK
       # Запускаем задачу 'assembleDebug', которая создает неподписанный APK.
       - name: Build with Gradle
-        run: gradle :app:assembleLiteDebug
+        run: gradle :app:assembleLiteLicCheckNoneNoinetNofsmlDebug
         # опции для ускорения
         # run: gradle assembleLiteDebug --no-daemon --parallel
+
+      - name: List available tasks
+        if: always()
+        run: gradle :app:tasks
 
       # Шаг 6: Загрузка APK как артефакта
       # Находим собранный APK и загружаем его с помощью action 'upload-artifact'.
@@ -64,5 +68,5 @@ jobs:
           # Имя артефакта, который можно скачать со страницы workflow
           name: preview-eds-apk
           # Путь к файлу APK. Стандартный путь для debug-сборки.
-          path: app/build/outputs/apk/lite/debug/*.apk
+          path: app/build/outputs/apk/lite/licCheckNone/noinet/nofsml/debug/*.apk
 
