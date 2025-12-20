@@ -39,20 +39,17 @@ jobs:
       # Шаг 5: Вручную скачиваем и настраиваем СТАРЫЙ Android SDK
       - name: Set up Android SDK
         run: |
-          # Скачиваем старую версию command-line tools (6.0), которая работает с Java 8
+          # Скачиваем старую версию command-line tools
           wget -q https://dl.google.com/android/repository/commandlinetools-linux-6858069_latest.zip -O cmdline-tools.zip
-          # Создаем директории для SDK
+          # Создаем директории
           mkdir -p $HOME/android-sdk/cmdline-tools
-          # Распаковываем в подпапку 'latest', как того требует структура
           unzip -q cmdline-tools.zip -d $HOME/android-sdk/cmdline-tools/
           mv $HOME/android-sdk/cmdline-tools/cmdline-tools $HOME/android-sdk/cmdline-tools/latest
-          # Устанавливаем переменные окружения, чтобы система нашла SDK
+          # Устанавливаем переменные окружения для СЛЕДУЮЩИХ шагов
           echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
-          echo "$HOME/android-sdk/platform-tools" >> $GITHUB_PATH
-          # Принимаем лицензии и устанавливаем нужные компоненты
-          yes | sdkmanager --licenses > /dev/null
-          sdkmanager "platforms;android-28" "build-tools;28.0.3"
+          # Принимаем лицензии и устанавливаем компоненты, используя ПОЛНЫЙ ПУТЬ
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null
+          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-28" "build-tools;28.0.3"
           
       # Шаг 3: Кеширование NDK
       # Этот шаг попытается восстановить NDK из кеша GitHub
