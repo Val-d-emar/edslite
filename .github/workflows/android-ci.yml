@@ -1,0 +1,59 @@
+name: Android CI
+
+on:
+  pull_request:
+    branches: [ "dev", "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Шаг 1: Клонирование репозитория
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Шаг 2: Установка Java (JDK)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # Шаг 3: Кеширование зависимостей Gradle
+      # Этот шаг необязателен, но он КРИТИЧЕСКИ важен для ускорения будущих сборок.
+      # Он сохраняет скачанные библиотеки между запусками.
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # Шаг 4: Предоставление прав на выполнение для Gradle Wrapper
+      # В Git может не сохраниться флаг "исполняемый", поэтому добавляем его вручную.
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # Шаг 5: Сборка debug APK
+      # Запускаем задачу 'assembleDebug', которая создает неподписанный APK.
+      - name: Build with Gradle
+        # run: ./gradlew assembleDebug
+        # опции для ускорения
+        run: ./gradlew assembleDebug --no-daemon --parallel
+
+      # Шаг 6: Загрузка APK как артефакта
+      # Находим собранный APK и загружаем его с помощью action 'upload-artifact'.
+      # После этого его можно будет скачать со страницы workflow.
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          # Имя артефакта, который можно скачать со страницы workflow
+          name: preview-eds-apk
+          # Путь к файлу APK. Стандартный путь для debug-сборки.
+          path: app/build/outputs/apk/debug/app-debug.apk
+
