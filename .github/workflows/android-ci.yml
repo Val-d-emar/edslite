@@ -30,7 +30,7 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/v_8_0_2_src/**/*.gradle*', '**/v_8_0_2_src/**/gradle-wrapper.properties') }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/**/*.gradle*', '**/**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
 
@@ -38,6 +38,7 @@ jobs:
       # В Git может не сохраниться флаг "исполняемый", поэтому добавляем его вручную.
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+        working-directory: ./
 
       # Шаг 5: Сборка debug APK
       # Запускаем задачу 'assembleDebug', которая создает неподписанный APK.
@@ -45,6 +46,7 @@ jobs:
         # run: ./gradlew assembleDebug
         # опции для ускорения
         run: ./gradlew assembleDebug --no-daemon --parallel
+        working-directory: ./
 
       # Шаг 6: Загрузка APK как артефакта
       # Находим собранный APK и загружаем его с помощью action 'upload-artifact'.
@@ -55,5 +57,5 @@ jobs:
           # Имя артефакта, который можно скачать со страницы workflow
           name: preview-eds-apk
           # Путь к файлу APK. Стандартный путь для debug-сборки.
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: ./app/build/outputs/apk/lite/debug/*.apk
 
