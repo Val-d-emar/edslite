@@ -42,6 +42,9 @@ jobs:
 
       # Шаг 6: Установка КОНКРЕТНЫХ, СТАРЫХ компонентов SDK через sdkmanager
       - name: Install required Android SDK components
+        env:
+          # Эта переменная заставит sdkmanager работать под Java 8
+          SKIP_JDK_VERSION_CHECK: "true"
         run: |
           yes | sdkmanager --licenses > /dev/null
           sdkmanager "platforms;android-28" "build-tools;28.0.3"
