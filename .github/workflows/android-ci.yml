@@ -17,12 +17,11 @@ jobs:
 
       # Шаг 2: Установка недостающей зависимости для NDK r13b
       # Скачиваем и устанавливаем libncurses5 и ее зависимость libtinfo5 из архива Ubuntu 18.04
-      - name: Install legacy dependencies
+      - name: Install legacy dependencies from old repository
         run: |
-          wget http://archive.ubuntu.com/ubuntu/pool/main/n/ncurses/libtinfo5_6.1-1ubuntu1.18.04_amd64.deb
-          wget http://archive.ubuntu.com/ubuntu/pool/main/n/ncurses/libncurses5_6.1-1ubuntu1.18.04_amd64.deb
-          sudo dpkg -i libtinfo5_6.1-1ubuntu1.18.04_amd64.deb
-          sudo dpkg -i libncurses5_6.1-1ubuntu1.18.04_amd64.deb
+          sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ bionic main universe"
+          sudo apt-get update
+          sudo apt-get install -y libncurses5 libtinfo5
 
       # Шаг 2: Установка Java (JDK)
       - name: Set up JDK 8
