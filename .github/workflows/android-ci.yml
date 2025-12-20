@@ -46,7 +46,7 @@ jobs:
           # Эта переменная заставит sdkmanager работать под Java 8
           SKIP_JDK_VERSION_CHECK: "true"
         run: |
-          yes | sdkmanager --licenses > /dev/null
+          SKIP_JDK_VERSION_CHECK=true; yes | sdkmanager --licenses > /dev/null
           sdkmanager "platforms;android-28" "build-tools;28.0.3"
           
       # Шаг 3: Кеширование NDK
