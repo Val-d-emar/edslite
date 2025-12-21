@@ -57,29 +57,29 @@ jobs:
         id: cache-ndk # Даем шагу id, чтобы ссылаться на его результат
         uses: actions/cache@v4
         with:
-          path: ~/android-ndk-r13b
-          key: ndk-r13b-${{ runner.os }}
+          path: ~/android-ndk-r17c
+          key: ndk-r17c-${{ runner.os }}
 
       # Шаг 5: Скачивание NDK, если его нет в кеше
       # Этот шаг выполнится только если предыдущий шаг не нашел кеш
       - name: Download and extract NDK
         if: steps.cache-ndk.outputs.cache-hit != 'true'
         run: |
-          wget -q https://dl.google.com/android/repository/android-ndk-r13b-linux-x86_64.zip
-          unzip -q android-ndk-r13b-linux-x86_64.zip -d $HOME
+          wget -q https://dl.google.com/android/repository/android-ndk-r17c-linux-x86_64.zip
+          unzip -q android-ndk-r17c-linux-x86_64.zip -d $HOME
 
       # Шаг 6: Создание файла local.properties
       # Этот шаг выполняется всегда, чтобы прописать путь к NDK (скачанному или из кеша)
       - name: Create local.properties
         run: |
           echo "sdk.dir=$HOME/android-sdk" > local.properties
-          echo "ndk.dir=$HOME/android-ndk-r13b" > local.properties
+          echo "ndk.dir=$HOME/android-ndk-r17c" > local.properties
 
       # Шаг 7: Сборка debug APK
       # Запускаем задачу 'assembleDebug', которая создает неподписанный APK.
       - name: Build with Gradle  
         run: |
-          ANDROID_NDK_HOME=$HOME/android-ndk-r13b gradle :app:assembleLiteLicCheckNoneNoinetNofsmlDebug
+          ANDROID_NDK_HOME=$HOME/android-ndk-r17c gradle :app:assembleLiteLicCheckNoneNoinetNofsmlDebug
           # опции для ускорения
           # run: gradle assembleLiteDebug --no-daemon --parallel
 
