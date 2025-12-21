@@ -82,9 +82,12 @@ jobs:
       - name: Build with Gradle
         env:
           ANDROID_NDK_HOME: ${{ env.HOME }}/android-ndk-r13b      
-        run: gradle :app:assembleLiteLicCheckNoneNoinetNofsmlDebug
-        # опции для ускорения
-        # run: gradle assembleLiteDebug --no-daemon --parallel
+        run: |
+          unset ANDROID_NDK_HOME
+          export ANDROID_NDK_HOME=${{ env.HOME }}/android-ndk-r13b      
+          gradle :app:assembleLiteLicCheckNoneNoinetNofsmlDebug
+          # опции для ускорения
+          # run: gradle assembleLiteDebug --no-daemon --parallel
 
       - name: List available tasks
         if: always()
