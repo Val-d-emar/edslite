@@ -73,11 +73,15 @@ jobs:
       # Шаг 6: Создание файла local.properties
       # Этот шаг выполняется всегда, чтобы прописать путь к NDK (скачанному или из кеша)
       - name: Create local.properties
-        run: echo "ndk.dir=$HOME/android-ndk-r13b" > local.properties
+        run: |
+          echo "sdk.dir=$HOME/android-sdk" > local.properties
+          echo "ndk.dir=$HOME/android-ndk-r13b" > local.properties
 
       # Шаг 7: Сборка debug APK
       # Запускаем задачу 'assembleDebug', которая создает неподписанный APK.
       - name: Build with Gradle
+        env:
+          ANDROID_NDK_HOME: ${{ env.HOME }}/android-ndk-r13b      
         run: gradle :app:assembleLiteLicCheckNoneNoinetNofsmlDebug
         # опции для ускорения
         # run: gradle assembleLiteDebug --no-daemon --parallel
