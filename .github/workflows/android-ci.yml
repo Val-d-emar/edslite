@@ -2,13 +2,14 @@ name: Android CI
 
 on:
   pull_request:
-    branches: [ "dev", "main" ]
+    branches: ["dev", "main"]
   workflow_dispatch:
 
 jobs:
+  # --- ЭТАП 1: СБОРКА ПРОЕКТА ---
   build:
-    # Используем старую версию Ubuntu, которая нативно поддерживает libncurses5
-    runs-on: ubuntu-22.04
+    # Используем latest версию Ubuntu
+    runs-on: ubuntu-latest
 
     steps:
       # Шаг 1: Клонирование репозитория
@@ -28,15 +29,15 @@ jobs:
       - name: Set up JDK 8
         uses: actions/setup-java@v4
         with:
-          java-version: '8'
-          distribution: 'temurin'
+          java-version: "8"
+          distribution: "temurin"
 
       - name: Set up Gradle 5.6.4
         uses: gradle/actions/setup-gradle@v3
         with:
-          gradle-version: '5.6.4'    
+          gradle-version: "5.6.4"
 
-      # Шаг 5: Вручную скачиваем и настраиваем СТАРЫЙ Android SDK
+      # Шаг 3: Вручную скачиваем и настраиваем СТАРЫЙ Android SDK
       - name: Set up Android SDK
         run: |
           # Скачиваем старую версию command-line tools
@@ -50,8 +51,8 @@ jobs:
           # Принимаем лицензии и устанавливаем компоненты, используя ПОЛНЫЙ ПУТЬ
           yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null
           $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-28" "build-tools;28.0.3"
-          
-      # Шаг 3: Кеширование NDK
+
+      # Шаг 4: Кеширование NDK
       # Этот шаг попытается восстановить NDK из кеша GitHub
       - name: Cache NDK
         id: cache-ndk # Даем шагу id, чтобы ссылаться на его результат
@@ -60,20 +61,20 @@ jobs:
           path: ~/android-ndk-r13b
           key: ndk-r13b-${{ runner.os }}
 
-      # Шаг 4: Скачивание NDK, если его нет в кеше
+      # Шаг 5: Скачивание NDK, если его нет в кеше
       # Этот шаг выполнится только если предыдущий шаг не нашел кеш
       - name: Download and extract NDK
         if: steps.cache-ndk.outputs.cache-hit != 'true'
         run: |
           wget -q https://dl.google.com/android/repository/android-ndk-r13b-linux-x86_64.zip
           unzip -q android-ndk-r13b-linux-x86_64.zip -d $HOME
-          
-      # Шаг 5: Создание файла local.properties
+
+      # Шаг 6: Создание файла local.properties
       # Этот шаг выполняется всегда, чтобы прописать путь к NDK (скачанному или из кеша)
       - name: Create local.properties
-        run: echo "ndk.dir=$HOME/android-ndk-r13b" > local.properties              
-                
-      # Шаг 5: Сборка debug APK
+        run: echo "ndk.dir=$HOME/android-ndk-r13b" > local.properties
+
+      # Шаг 7: Сборка debug APK
       # Запускаем задачу 'assembleDebug', которая создает неподписанный APK.
       - name: Build with Gradle
         run: gradle :app:assembleLiteLicCheckNoneNoinetNofsmlDebug
@@ -83,13 +84,13 @@ jobs:
       - name: List available tasks
         if: always()
         run: gradle :app:tasks
-        
+
       # --- ДИАГНОСТИЧЕСКИЙ ШАГ ---
       # Этот шаг покажет точную структуру папок
       - name: List build outputs
         run: ls -R app/build/outputs
 
-      # Шаг 6: Загрузка APK как артефакта
+      # Шаг 8: Загрузка APK как артефакта
       # Находим собранный APK и загружаем его с помощью action 'upload-artifact'.
       # После этого его можно будет скачать со страницы workflow.
       - name: Upload APK
@@ -100,3 +101,43 @@ jobs:
           name: preview-eds-apk
           # Путь к файлу APK. Рекурсивный поиск APK во всей папке 'apk'
           path: app/build/outputs/apk/**/*.apk
+
+  # --- ЭТАП 2: ОТЧЕТ В PULL REQUEST ---
+  report:
+    # Запускается после сборки
+    needs: build
+    # Запускается всегда (и при успехе, и при провале), но только для Pull Request'ов
+    if: always() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    # Даем права на запись комментариев в PR
+    permissions:
+      pull-requests: write
+
+    steps:
+      # Шаг 2.1: Генерируем ссылку на страницу с результатами
+      - name: Generate workflow run URL
+        id: run-url
+        run: echo "url=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_OUTPUT
+
+      # Шаг 2.2: Комментарий в случае УСПЕХА
+      - name: Post success comment
+        if: needs.build.result == 'success'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          # Уникальный заголовок, чтобы экшен мог найти и обновить свой комментарий
+          header: build-report
+          message: |
+            ✅ **Сборка прошла успешно!**
+
+            - **Скачать APK:** [preview-apk.zip](${{ steps.run-url.outputs.url }})
+
+      # Шаг 2.3: Комментарий в случае ПРОВАЛА
+      - name: Post failure comment
+        if: needs.build.result == 'failure'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: build-report
+          message: |
+            ❌ **Сборка провалилась.**
+
+            - **Логи ошибки:** [Logs](${{ steps.run-url.outputs.url }})
