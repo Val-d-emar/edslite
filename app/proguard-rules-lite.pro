@@ -48,3 +48,9 @@
 -dontnote android.support.**
 
 -dontwarn java.awt.*
+
+# fixes
+-dontwarn com.drew.lang.annotations.**
+-dontwarn javax.annotation.**
+
+-keep class com.sovworks.eds.fs.util.FileStat { *; }
