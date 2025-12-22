@@ -1,17 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
-
     compileSdkVersion 28
 
     defaultConfig {
-        applicationId "com.sovworks.eds.android"
+        applicationId 'com.sovworks.eds.android'
         minSdkVersion 14
         targetSdkVersion 28
         versionCode 237
-        versionName "2.0.0.237"
+        versionName '2.0.0.237'
         multiDexEnabled true
-
 
         ndk {
             // Specifies the ABI configurations of your native
@@ -19,53 +17,52 @@ android {
             abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
         }
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
     }
 
-	signingConfigs {
+    signingConfigs {
         debug {
             storeFile file('../misc/keys.keystore')
             storePassword 'android'
             keyAlias 'eds-debug-key'
             keyPassword 'android'
         }
-    }    
+    }
 
-    flavorDimensions "fullOrLite", "licCheckType", "inet", "fsm"
+    flavorDimensions 'fullOrLite', 'licCheckType', 'inet', 'fsm'
 
     productFlavors {
-        
         lite {
-            dimension "fullOrLite"
-            applicationId "com.sovworks.edslite"
+            dimension 'fullOrLite'
+            applicationId 'com.sovworks.edslite'
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules-lite.pro'
             externalNativeBuild {
                 cmake {
-                    targets "edsxts", "edsctr", "edsaes", "edsserpent", "edstwofish", "edsripemd160", "edswhirlpool", "fdraio", "localxts", "edscfb", "edscbc", "edsctr", "edsgost"
+                    targets 'edsxts', 'edsctr', 'edsaes', 'edsserpent', 'edstwofish', 'edsripemd160', 'edswhirlpool', 'fdraio', 'localxts', 'edscfb', 'edscbc', 'edsctr', 'edsgost'
                 }
             }
         }
         licCheckNone {
-            dimension "licCheckType"
+            dimension 'licCheckType'
         }
         noinet {
-            dimension "inet"
+            dimension 'inet'
         }
         nofsml {
-            dimension "fsm"
+            dimension 'fsm'
         }
     }
 
     variantFilter { variant ->
         def names = variant.flavors*.name
-        if ((names.contains("lite") && !names.contains("licCheckNone")) ||
-                (names.contains("full") && names.contains("licCheckNone")) ||
-                (names.contains("inet") && !names.contains("full")) ||
-                (names.contains("fsm") && !names.contains("full")) ||
-                (names.contains("nofsm") && !names.contains("full")) ||
-                (names.contains("fsm") && !names.contains("inet")) ||
-                (names.contains("fsm") && !names.contains("licCheckGP")) ||
-                (names.contains("nofsml") && !names.contains("lite"))
+        if ((names.contains('lite') && !names.contains('licCheckNone')) ||
+                (names.contains('full') && names.contains('licCheckNone')) ||
+                (names.contains('inet') && !names.contains('full')) ||
+                (names.contains('fsm') && !names.contains('full')) ||
+                (names.contains('nofsm') && !names.contains('full')) ||
+                (names.contains('fsm') && !names.contains('inet')) ||
+                (names.contains('fsm') && !names.contains('licCheckGP')) ||
+                (names.contains('nofsml') && !names.contains('lite'))
 
         ) {
             setIgnore(true)
@@ -73,13 +70,15 @@ android {
     }
 
     buildTypes {
-        
+        release {
+            minifyEnabled true
+            signingConfig signingConfigs.debug
+        }
         debug {
             signingConfig signingConfigs.debug
             externalNativeBuild {
-
                 cmake {
-                    cFlags "-DDEBUG"
+                    cFlags '-DDEBUG'
                 }
             }
             debuggable true
@@ -95,20 +94,19 @@ android {
     }
 
     lintOptions {
-          //checkReleaseBuilds false
-          abortOnError false
+        //checkReleaseBuilds false
+        abortOnError false
     }
 
     applicationVariants.all { variant ->
         variant.outputs.all {
-            outputFileName = outputFileName.replace("app-", "EDS-").replace(".apk", "-v${variant.versionName}.apk")
+            outputFileName = outputFileName.replace('app-', 'EDS-').replace('.apk', "-v${variant.versionName}.apk")
         }
     }
 
     externalNativeBuild {
-
         cmake {
-           path "CMakeLists.txt"
+            path 'CMakeLists.txt'
         }
     }
 
@@ -132,19 +130,18 @@ dependencies {
     implementation 'com.android.support:exifinterface:28.0.0'
 }
 
-
 apply from: 'build-full.gradle'
 
 if (file('build-local').exists()) {
-	apply from: 'build-local.gradle'
+    apply from: 'build-local.gradle'
 }
 
 configurations.all {
     resolutionStrategy.eachDependency { DependencyResolveDetails details ->
         def requested = details.requested
-        if (requested.group == "com.android.support") {
-            if (!requested.name.startsWith("multidex")) {
-                details.useVersion "26.+"
+        if (requested.group == 'com.android.support') {
+            if (!requested.name.startsWith('multidex')) {
+                details.useVersion '26.+'
             }
         }
     }
