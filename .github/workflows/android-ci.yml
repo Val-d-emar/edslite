@@ -79,14 +79,14 @@ jobs:
       # Запускаем задачу 'assembleDebug', которая создает неподписанный APK.
       - name: Build with Gradle Debug 
         run: |
-          ANDROID_NDK_HOME=$HOME/android-ndk-r17c gradle :app:assembleLiteLicCheckNoneNoinetNofsmlDebug --no-daemon --parallel
+          ANDROID_NDK_HOME=$HOME/android-ndk-r17c gradle :app:assembleLiteLicCheckNoneNoinetNofsmlDebug
           # опции для ускорения
           # --no-daemon --parallel
 
       # Шаг 8: Сборка release APK
       - name: Build with Gradle Release 
         run: |
-          ANDROID_NDK_HOME=$HOME/android-ndk-r17c gradle :app:assembleLiteLicCheckNoneNoinetNofsmlRelease --no-daemon --parallel
+          ANDROID_NDK_HOME=$HOME/android-ndk-r17c gradle :app:assembleLiteLicCheckNoneNoinetNofsmlRelease
           # опции для ускорения
           # --no-daemon --parallel      
 
