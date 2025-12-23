@@ -4,13 +4,12 @@
 IMAGE_NAME="edslite-builder"
 CONTAINER_NAME="edslite-container"
 DOCKERHUB_IMAGE="valdemarsu/$IMAGE_NAME:latest"
-DEVICE_IP="192.168.240.112"
-APK_FILE_PATH="app/build/outputs/apk/liteLicCheckNoneNoinetNofsml/debug/"
-# APK_FILE_PATH="app/build/outputs/apk/liteLicCheckNoneNoinetNofsml/release/"
+DEVICE_IP="192.168.240.112" # Waydroid default
+APK_FILE_PATH="app/build/outputs/apk/liteLicCheckNoneNoinetNofsml"
 
 # --- Справка ---
 usage() {
-    echo "Usage: $0 [команда] [-i|--install]"
+    echo "Usage: $0 [команда] [-i|--install] [debug|release] [-h|--help] [IP-адрес устройства]"
     echo ""
     echo "Команды:"
     echo "  (no args)     Запускает одноразовую сборку и удаляет контейнер."
@@ -21,8 +20,31 @@ usage() {
     echo ""
     echo "Опции:"
     echo "  --install, -i Устанавливает APK в Android устройство после успешной сборки."
+    echo "    IP-адрес устройства: IP-адрес устройства, на которое будет устанавливаться APK."
+    echo "    debug|release: Тип сборки. debug - отладочная сборка, release - релизная сборка."
     exit 1
 }
+
+# --- Парсинг аргументов ---
+COMMAND="once" # Команда по умолчанию
+INSTALL_FLAG=false
+BUILD_TYPE="debug"
+
+# Простой парсинг, чтобы флаги могли идти в любом порядке
+for arg in "$@"; do
+  case $arg in
+    -d) COMMAND="start" ;;
+    -h|--help) usage ;;
+    -i|--install) INSTALL_FLAG=true ;;
+    -e|--exec) COMMAND="build" ;;
+    -s|--stop) COMMAND="stop" ;;
+    debug) BUILD_TYPE="debug" ;;
+    release) BUILD_TYPE="release" ;;
+    *) DEVICE_IP=$arg ;;
+  esac
+done
+
+APK_FILE_PATH="${APK_FILE_PATH}/${BUILD_TYPE}/"
 
 # --- Функция установки APK ---
 install_apk() {
@@ -49,21 +71,6 @@ install_apk() {
       fi
     fi
 }
-
-# --- Парсинг аргументов ---
-COMMAND="once" # Команда по умолчанию
-INSTALL_FLAG=false
-
-# Простой парсинг, чтобы флаги могли идти в любом порядке
-for arg in "$@"; do
-  case $arg in
-    -d) COMMAND="start" ;;
-    -h|--help) usage ;;
-    -i|--install) INSTALL_FLAG=true ;;
-    -e|--exec) COMMAND="build" ;;
-    -s|--stop) COMMAND="stop" ;;
-  esac
-done
 
 # --- Команда для выполнения сборки внутри контейнера ---
 BUILD_COMMAND='
