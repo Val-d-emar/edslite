@@ -2,9 +2,10 @@
 #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
 #pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
 
-#include "com_sovworks_eds_fs_util_FDRandomAccessIO.h"
+#include "com_igeltech_nevercrypt_fs_util_FDRandomAccessIO.h"
 
 #include <stdlib.h>
+#include <unistd.h>
 //#include <stdio.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -13,16 +14,16 @@
 #include <sys/stat.h>
 #include <android/log.h>
 
-#define LOGI(...) __android_log_print(ANDROID_LOG_INFO, "EDS (native code fdraio)", __VA_ARGS__);
+#define LOGI(...) __android_log_print(ANDROID_LOG_INFO, "NeverCrypt (native code fdraio)", __VA_ARGS__);
 #ifdef DEBUG
-#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, "EDS (native code fdraio)", __VA_ARGS__);
+#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, "NeverCrypt (native code fdraio)", __VA_ARGS__);
 #else
 #define LOGD(...)
 #endif
 
 #define BUFFER_SIZE (8*1024)
 
-JNIEXPORT jint JNICALL Java_com_sovworks_eds_fs_util_FDRandomAccessIO_write(
+JNIEXPORT jint JNICALL Java_com_igeltech_nevercrypt_fs_util_FDRandomAccessIO_write(
     JNIEnv *env, 
     jclass cls, 
     jint fd, 
@@ -49,7 +50,7 @@ JNIEXPORT jint JNICALL Java_com_sovworks_eds_fs_util_FDRandomAccessIO_write(
     return res;
 }
 
-JNIEXPORT jint JNICALL Java_com_sovworks_eds_fs_util_FDRandomAccessIO_read(
+JNIEXPORT jint JNICALL Java_com_igeltech_nevercrypt_fs_util_FDRandomAccessIO_read(
     JNIEnv *env, 
     jclass cls, 
     jint fd, 
@@ -65,7 +66,7 @@ JNIEXPORT jint JNICALL Java_com_sovworks_eds_fs_util_FDRandomAccessIO_read(
     return res;
 }
 
-JNIEXPORT void JNICALL Java_com_sovworks_eds_fs_util_FDRandomAccessIO_seek(
+JNIEXPORT void JNICALL Java_com_igeltech_nevercrypt_fs_util_FDRandomAccessIO_seek(
     JNIEnv *env, 
     jclass cls, 
     jint fd, 
@@ -74,7 +75,7 @@ JNIEXPORT void JNICALL Java_com_sovworks_eds_fs_util_FDRandomAccessIO_seek(
     lseek64(fd, position, SEEK_SET);
 }
 
-JNIEXPORT jint JNICALL Java_com_sovworks_eds_fs_util_FDRandomAccessIO_ftruncate(
+JNIEXPORT jint JNICALL Java_com_igeltech_nevercrypt_fs_util_FDRandomAccessIO_ftruncate(
     JNIEnv *env, 
     jclass cls, 
     jint fd, 
@@ -83,7 +84,7 @@ JNIEXPORT jint JNICALL Java_com_sovworks_eds_fs_util_FDRandomAccessIO_ftruncate(
     return ftruncate64 (fd, newLength);
 }
 
-JNIEXPORT jlong JNICALL Java_com_sovworks_eds_fs_util_FDRandomAccessIO_getSize(
+JNIEXPORT jlong JNICALL Java_com_igeltech_nevercrypt_fs_util_FDRandomAccessIO_getSize(
 	JNIEnv *env, 
 	jclass cls, 
 	jint fd)
@@ -94,7 +95,7 @@ JNIEXPORT jlong JNICALL Java_com_sovworks_eds_fs_util_FDRandomAccessIO_getSize(
 	return buf.st_size;
 }
 
-JNIEXPORT jlong JNICALL Java_com_sovworks_eds_fs_util_FDRandomAccessIO_getPosition(
+JNIEXPORT jlong JNICALL Java_com_igeltech_nevercrypt_fs_util_FDRandomAccessIO_getPosition(
     JNIEnv *env, 
     jclass cls, 
     jint fd)
@@ -102,7 +103,7 @@ JNIEXPORT jlong JNICALL Java_com_sovworks_eds_fs_util_FDRandomAccessIO_getPositi
     return lseek64(fd, 0, SEEK_CUR);
 }
 
-JNIEXPORT void JNICALL Java_com_sovworks_eds_fs_util_FDRandomAccessIO_flush(
+JNIEXPORT void JNICALL Java_com_igeltech_nevercrypt_fs_util_FDRandomAccessIO_flush(
     JNIEnv *env, 
     jclass cls, 
     jint fd)
@@ -110,7 +111,7 @@ JNIEXPORT void JNICALL Java_com_sovworks_eds_fs_util_FDRandomAccessIO_flush(
     fsync(fd);
 }
 
-JNIEXPORT void JNICALL Java_com_sovworks_eds_fs_util_FDRandomAccessIO_close(
+JNIEXPORT void JNICALL Java_com_igeltech_nevercrypt_fs_util_FDRandomAccessIO_close(
     JNIEnv *env, 
     jclass cls, 
     jint fd)

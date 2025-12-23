@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-	android:descendantFocusability="blocksDescendants"
-	style="@style/PropertyRow">
-	<TextView
-		android:id="@+id/title_edit"
-		style="@style/PropertyTitle" />
-	<TextView
-	    android:id="@+id/desc"
-		style="@style/PropertyDesc" />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/PropertyRow"
+    android:descendantFocusability="blocksDescendants"
+    android:orientation="vertical">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/title_edit"
+        style="@style/PropertyTitle" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/desc"
+        style="@style/PropertyDesc" />
 </LinearLayout>
