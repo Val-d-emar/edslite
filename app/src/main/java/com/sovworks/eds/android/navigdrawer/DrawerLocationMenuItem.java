@@ -1,11 +1,17 @@
 package com.sovworks.eds.android.navigdrawer;
 
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
+
+import com.google.android.material.navigation.NavigationView;
 import com.sovworks.eds.android.R;
 import com.sovworks.eds.android.filemanager.activities.FileManagerActivity;
 import com.sovworks.eds.android.filemanager.fragments.FileListDataFragment;
@@ -19,99 +25,105 @@ import com.sovworks.eds.locations.LocationsManager;
 
 import java.util.Stack;
 
-public class DrawerLocationMenuItem extends DrawerMenuItemBase
-{
-    public static class Opener extends LocationOpenerBaseFragment
-    {
+public class DrawerLocationMenuItem extends DrawerMenuItemBase {
+    public static class Opener extends LocationOpenerBaseFragment {
         @Override
-        public void onLocationOpened(Location location)
-        {
+        public void onLocationOpened(Location location) {
             Bundle args = getArguments();
             FileManagerActivity.openFileManager(
-                    (FileManagerActivity)getActivity(),
+                    (FileManagerActivity) getActivity(),
                     location, args != null ?
                             args.getInt(FileListViewFragment.ARG_SCROLL_POSITION, 0)
-                            : 0
+                            : 0,
+                    args != null ?
+                            args.getInt(FileListViewFragment.ARG_SCROLL_OFFSET, 0)
+                            : 0,
+                    true
             );
         }
     }
 
-    public DrawerLocationMenuItem(Location location, DrawerControllerBase drawerController)
-    {
+    public DrawerLocationMenuItem(Location location, DrawerControllerBase drawerController) {
         super(drawerController);
         _location = location;
     }
 
-    public Location getLocation()
-    {
+    public Location getLocation() {
         return _location;
     }
 
     @Override
-    public String getTitle()
-    {
+    public String getTitle() {
         return _location.getTitle();
     }
 
     @Override
-    public int getViewType()
-    {
+    public int getViewType() {
         return 2;
     }
 
     @Override
-    public void updateView(View view, @SuppressWarnings("UnusedParameters") int position)
-    {
+    void initMenu(NavigationView navigationView, SubMenu subMenu) {
+        MenuItem newMenuItem = subMenu.add(Menu.FIRST, 0, Menu.NONE, getTitle());
+        newMenuItem.setIcon(getIcon());
+        newMenuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(@NonNull MenuItem item) {
+                final MenuItem checkedItem = navigationView.getCheckedItem();
+                if (checkedItem != null) {
+                    checkedItem.setCheckable(false);
+                }
+                newMenuItem.setCheckable(true);
+                navigationView.setCheckedItem(newMenuItem);
+                onClick(item.getActionView(), 0);
+                return false;
+            }
+        });
+    }
+
+    @Override
+    public void updateView(View view, @SuppressWarnings("UnusedParameters") int position) {
         super.updateView(view, position);
         ImageView iv = view.findViewById(R.id.close);
-        if(iv!=null)
-        {
-            if(LocationsManager.isOpenableAndOpen(_location))
-            {
+        if (iv != null) {
+            if (LocationsManager.isOpenableAndOpen(_location)) {
                 iv.setVisibility(View.VISIBLE);
                 iv.setOnClickListener(_closeIconClickListener);
-            }
-            else
+            } else {
                 iv.setVisibility(View.INVISIBLE);
+            }
         }
     }
 
     @Override
-    public void onClick(View view, int position)
-    {
+    public void onClick(View view, int position) {
         openLocation();
         super.onClick(view, position);
     }
 
     @Override
-    public boolean onLongClick(View view, int position)
-    {
-        if(hasSettings())
-        {
+    public boolean onLongClick(View view, int position) {
+        if (hasSettings()) {
             openLocationSettings();
             return true;
         }
         return false;
     }
 
-    public void openLocation()
-    {
-        FragmentManager fm = getDrawerController().getMainActivity().getFragmentManager();
+    public void openLocation() {
+        FragmentManager fm = getDrawerController().getMainActivity().getSupportFragmentManager();
         String openerTag = LocationOpenerBaseFragment.getOpenerTag(_location);
-        if(fm.findFragmentByTag(openerTag)==null)
-        {
+        if (fm.findFragmentByTag(openerTag) == null) {
             LocationOpenerBaseFragment opener = getOpener();
             opener.setArguments(getOpenerArgs());
             fm.beginTransaction().add(opener, openerTag).commit();
         }
     }
 
-    public void closeLocation()
-    {
-        FragmentManager fm = getDrawerController().getMainActivity().getFragmentManager();
-        String closerTag = LocationCloserBaseFragment.getCloserTag( _location);
-        if(fm.findFragmentByTag(closerTag)==null)
-        {
+    public void closeLocation() {
+        FragmentManager fm = getDrawerController().getMainActivity().getSupportFragmentManager();
+        String closerTag = LocationCloserBaseFragment.getCloserTag(_location);
+        if (fm.findFragmentByTag(closerTag) == null) {
             LocationCloserBaseFragment closer = getCloser();
             closer.setArguments(getCloserArgs());
             fm.beginTransaction().add(closer, closerTag).commit();
@@ -119,74 +131,66 @@ public class DrawerLocationMenuItem extends DrawerMenuItemBase
     }
 
     @Override
-    protected int getLayoutId()
-    {
+    protected int getLayoutId() {
         return R.layout.drawer_location_item;
     }
 
-    protected LocationCloserBaseFragment getCloser()
-    {
+    protected LocationCloserBaseFragment getCloser() {
         return LocationCloserBaseFragment.getDefaultCloserForLocation(_location);
     }
 
-    protected LocationOpenerBaseFragment getOpener()
-    {
+    protected LocationOpenerBaseFragment getOpener() {
         return new Opener();
     }
 
-    protected Bundle getOpenerArgs()
-    {
+    protected Bundle getOpenerArgs() {
         Bundle b = new Bundle();
         FileListDataFragment.HistoryItem hi = findPrevLocation(_location);
-        if(hi == null)
-            LocationsManager.storePathsInBundle(b,_location, null);
-        else
-        {
+        if (hi == null) {
+            LocationsManager.storePathsInBundle(b, _location, null);
+        } else {
             b.putParcelable(LocationsManager.PARAM_LOCATION_URI, hi.locationUri);
             b.putInt(FileListViewFragmentBase.ARG_SCROLL_POSITION, hi.scrollPosition);
+            b.putInt(FileListViewFragmentBase.ARG_SCROLL_OFFSET, hi.scrollOffset);
         }
         return b;
     }
 
-    protected Bundle getCloserArgs()
-    {
+    protected Bundle getCloserArgs() {
         Bundle b = new Bundle();
-        LocationsManager.storePathsInBundle(b,_location, null);
+        LocationsManager.storePathsInBundle(b, _location, null);
         return b;
     }
 
-    protected void openLocationSettings()
-    {
+    protected void openLocationSettings() {
         Intent i = new Intent(getContext(), LocationSettingsActivity.class);
         LocationsManager.storePathsInIntent(i, _location, null);
         getContext().startActivity(i);
     }
 
-    protected boolean hasSettings()
-    {
+    protected boolean hasSettings() {
         return false;
     }
 
     private final Location _location;
     private final View.OnClickListener _closeIconClickListener = v -> closeLocation();
 
-    private FileListDataFragment.HistoryItem findPrevLocation(Location loc)
-    {
+    private FileListDataFragment.HistoryItem findPrevLocation(Location loc) {
         FileListDataFragment df = (FileListDataFragment) getDrawerController().
                 getMainActivity().
-                getFragmentManager().
+                getSupportFragmentManager().
                 findFragmentByTag(FileListDataFragment.TAG);
-        if(df!=null)
-        {
+        if (df != null) {
             Stack<FileListDataFragment.HistoryItem> hist = df.getNavigHistory();
             String locId = loc.getId();
-            if(locId != null)
-                for(int i = hist.size() - 1;i>=0;i--)
-                {
+            if (locId != null) {
+                for (int i = hist.size() - 1; i >= 0; i--) {
                     FileListDataFragment.HistoryItem hi = hist.get(i);
-                    if(locId.equals(hi.locationId))
+                    if (locId.equals(hi.locationId)) {
                         return hi;
+                    }
                 }
+            }
         }
         return null;
     }

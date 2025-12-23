@@ -1,8 +1,8 @@
 package com.sovworks.eds.android.locations.fragments;
 
+import static android.view.MenuItem.SHOW_AS_ACTION_IF_ROOM;
+
 import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
@@ -11,8 +11,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
+
 import com.sovworks.eds.android.Logger;
 import com.sovworks.eds.android.R;
+import com.sovworks.eds.android.dialogs.CloseContainerDialog;
 import com.sovworks.eds.android.fragments.PropertiesFragmentBase;
 import com.sovworks.eds.android.fragments.TaskFragment;
 import com.sovworks.eds.android.helpers.ActivityResultHandler;
@@ -30,60 +34,55 @@ import com.sovworks.eds.locations.Openable;
 
 import java.util.concurrent.CancellationException;
 
-public abstract class CreateEDSLocationFragmentBase extends PropertiesFragmentBase implements PropertiesHostWithStateBundle
-{
+public abstract class CreateEDSLocationFragmentBase extends PropertiesFragmentBase implements PropertiesHostWithStateBundle {
     public static final String ARG_ADD_EXISTING_LOCATION = "com.sovworks.eds.android.ADD_EXISTING_CONTAINER";
 
     @Override
-    public void onCreate(Bundle state)
-    {
-        if(state!=null)
+    public void onCreate(Bundle state) {
+        if (state != null) {
             _state.putAll(state);
+        }
         super.onCreate(state);
         setHasOptionsMenu(true);
     }
 
     @Override
-    public void onSaveInstanceState (Bundle outState)
-    {
+    public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putAll(_state);
     }
 
     @Override
-	public void onCreateOptionsMenu (Menu menu, MenuInflater inflater)
-	{
-		inflater.inflate(R.menu.create_location_menu, menu);
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.create_location_menu, menu);
         menu.findItem(R.id.confirm).setTitle(R.string.create_new_container);
-	}
+    }
 
     @Override
-    public void onPrepareOptionsMenu (Menu menu)
-    {
+    public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         MenuItem mi = menu.findItem(R.id.confirm);
+        mi.setShowAsAction(SHOW_AS_ACTION_IF_ROOM);
         mi.setVisible(_state.containsKey(ARG_ADD_EXISTING_LOCATION));
         mi.setTitle(_state.getBoolean(ARG_ADD_EXISTING_LOCATION) ? R.string.add_container : R.string.create_new_container);
         boolean enabled = checkParams();
         mi.setEnabled(enabled);
-        @SuppressWarnings("deprecation") StateListDrawable sld = (StateListDrawable) getActivity().getResources().getDrawable(R.drawable.ic_menu_done);
-        if(sld!=null)
-        {
+        @SuppressWarnings("deprecation") StateListDrawable sld = (StateListDrawable) AppCompatResources.getDrawable(requireActivity(), R.drawable.ic_menu_done);
+        if (sld != null) {
             sld.setState(enabled ? new int[]{android.R.attr.state_enabled} : new int[0]);
             mi.setIcon(sld.getCurrent());
         }
     }
 
     @Override
-	public boolean onOptionsItemSelected(MenuItem menuItem)
-    {
-        switch (menuItem.getItemId())
-        {
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
             case R.id.confirm:
-                if(_state.getBoolean(ARG_ADD_EXISTING_LOCATION))
+                if (_state.getBoolean(ARG_ADD_EXISTING_LOCATION)) {
                     startAddLocationTask();
-                else
+                } else {
                     startCreateLocationTask();
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(menuItem);
@@ -91,85 +90,68 @@ public abstract class CreateEDSLocationFragmentBase extends PropertiesFragmentBa
     }
 
     @Override
-    public void onPause()
-    {
+    public void onPause() {
         _resHandler.onPause();
         super.onPause();
     }
 
     @Override
-    public void onResume()
-    {
+    public void onResume() {
         super.onResume();
         _resHandler.handle();
     }
 
     @Override
-    public void onDestroy()
-    {
+    public void onDestroy() {
         super.onDestroy();
         SecureBuffer sb = _state.getParcelable(Openable.PARAM_PASSWORD);
-        if(sb!=null)
-        {
+        if (sb != null) {
             sb.close();
             _state.remove(Openable.PARAM_PASSWORD);
         }
     }
 
     @Override
-    protected void initProperties(Bundle state)
-    {
+    protected void initProperties(Bundle state) {
         _propertiesView.setInstantSave(true);
         super.initProperties(state);
     }
 
-    public Bundle getState()
-    {
+    public Bundle getState() {
         return _state;
     }
 
-    public void setOverwrite(boolean val)
-    {
+    public void setOverwrite(boolean val) {
         _state.putBoolean(CreateContainerTaskFragmentBase.ARG_OVERWRITE, val);
     }
 
-    public void startCreateLocationTask()
-    {
-        try
-        {
+    public void startCreateLocationTask() {
+        try {
             _propertiesView.saveProperties();
             TaskFragment task = createCreateLocationTask();
             task.setArguments(_state);
             getFragmentManager().beginTransaction().add(task, CreateEDSLocationTaskFragment.TAG).commit();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             Logger.showAndLog(getActivity(), e);
         }
     }
 
-    public void startAddLocationTask()
-    {
-        try
-        {
+    public void startAddLocationTask() {
+        try {
             _propertiesView.saveProperties();
             getFragmentManager().
                     beginTransaction().
                     add(createAddExistingLocationTask(), AddExistingContainerTaskFragment.TAG).commit();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             Logger.showAndLog(getActivity(), e);
         }
     }
 
-    public ActivityResultHandler getResHandler()
-    {
+    public ActivityResultHandler getResHandler() {
         return _resHandler;
     }
 
-    public void showAddExistingLocationProperties()
-    {
+    public void showAddExistingLocationProperties() {
         _state.putBoolean(ARG_ADD_EXISTING_LOCATION, true);
         _propertiesView.setPropertiesState(false);
         _propertiesView.setPropertyState(R.string.path_to_container, true);
@@ -177,42 +159,33 @@ public abstract class CreateEDSLocationFragmentBase extends PropertiesFragmentBa
 
     }
 
-    public void showCreateNewLocationProperties()
-    {
+    public void showCreateNewLocationProperties() {
         _state.putBoolean(ARG_ADD_EXISTING_LOCATION, false);
         _propertiesView.setPropertiesState(false);
     }
 
-    public TaskFragment.TaskCallbacks getAddExistingEDSLocationTaskCallbacks()
-    {
-        return new ProgressDialogTaskFragmentCallbacks(getActivity(), R.string.loading)
-        {
+    public TaskFragment.TaskCallbacks getAddExistingEDSLocationTaskCallbacks() {
+        return new ProgressDialogTaskFragmentCallbacks((AppCompatActivity) getActivity(), R.string.loading) {
 
             @Override
-            public void onCompleted(Bundle args, TaskFragment.Result result)
-            {
-                try
-                {
+            public void onCompleted(Bundle args, TaskFragment.Result result) {
+                try {
                     Location loc = (Location) result.getResult();
                     LocationsManager.broadcastLocationAdded(getContext(), loc);
                     Intent res = new Intent();
                     res.setData(loc.getLocationUri());
                     getActivity().setResult(Activity.RESULT_OK, res);
                     getActivity().finish();
-                }
-                catch (CancellationException ignored)
-                {
+                } catch (CancellationException ignored) {
 
-                }
-                catch (Throwable e)
-                {
+                } catch (Throwable e) {
                     Logger.showAndLog(getActivity(), e);
                 }
             }
         };
     }
-    public TaskFragment.TaskCallbacks getCreateLocationTaskCallbacks()
-    {
+
+    public TaskFragment.TaskCallbacks getCreateLocationTaskCallbacks() {
         return new CreateLocationTaskCallbacks();
     }
 
@@ -220,113 +193,95 @@ public abstract class CreateEDSLocationFragmentBase extends PropertiesFragmentBa
     protected final Bundle _state = new Bundle();
 
     protected abstract TaskFragment createAddExistingLocationTask();
+
     protected abstract TaskFragment createCreateLocationTask();
 
-    protected class CreateLocationTaskCallbacks implements TaskFragment.TaskCallbacks
-    {
+    protected class CreateLocationTaskCallbacks implements TaskFragment.TaskCallbacks {
 
         @Override
-        public void onPrepare(Bundle args)
-        {
+        public void onPrepare(Bundle args) {
 
         }
 
         @Override
-        public void onResumeUI(Bundle args)
-        {
-            _dialog = new ProgressDialog(getContext());
-            _dialog.setMessage(getText(R.string.creating_container));
-            _dialog.setIndeterminate(true);
+        public void onResumeUI(Bundle args) {
+            _dialog = CloseContainerDialog.showDialog(getFragmentManager(), getString(R.string.creating_container));
             _dialog.setCancelable(true);
-            _dialog.setOnCancelListener(new DialogInterface.OnCancelListener()
-            {
-                @Override
-                public void onCancel(DialogInterface dialog)
-                {
-                    CreateEDSLocationTaskFragment f = (CreateEDSLocationTaskFragment) getFragmentManager()
-                            .findFragmentByTag(CreateContainerTaskFragmentBase.TAG);
-                    if (f != null) f.cancel();
+            _dialog.setOnCancelListener(dialog -> {
+                CreateEDSLocationTaskFragment f = (CreateEDSLocationTaskFragment) getFragmentManager()
+                        .findFragmentByTag(CreateContainerTaskFragmentBase.TAG);
+                if (f != null) {
+                    f.cancel();
                 }
             });
-            _dialog.show();
         }
 
         @Override
-        public void onSuspendUI(Bundle args)
-        {
+        public void onSuspendUI(Bundle args) {
             _dialog.dismiss();
         }
 
         @Override
-        public void onCompleted(Bundle args, TaskFragment.Result result)
-        {
-            if (result.isCancelled()) return;
-            try
-            {
+        public void onCompleted(Bundle args, TaskFragment.Result result) {
+            if (result.isCancelled()) {
+                return;
+            }
+            try {
                 int res = (Integer) result.getResult();
-                if (res == CreateContainerTaskFragmentBase.RESULT_REQUEST_OVERWRITE)
+                if (res == CreateContainerTaskFragmentBase.RESULT_REQUEST_OVERWRITE) {
                     OverwriteContainerDialog
                             .showDialog(getFragmentManager());
-                else
-                {
+                } else {
                     getActivity().setResult(Activity.RESULT_OK);
                     getActivity().finish();
                 }
-            }
-            catch (Throwable e)
-            {
+            } catch (Throwable e) {
                 Logger.showAndLog(getActivity(), result.getError());
             }
         }
 
         @Override
-        public void onUpdateUI(Object state)
-        {
+        public void onUpdateUI(Object state) {
 
         }
 
-        private ProgressDialog _dialog;
+        private CloseContainerDialog _dialog;
     }
 
     @Override
-    protected void createProperties()
-    {
+    protected void createProperties() {
         createStartProperties();
         createNewLocationProperties();
         createExtProperties();
 
-        if(_state.containsKey(ARG_ADD_EXISTING_LOCATION))
-        {
-            if(_state.getBoolean(ARG_ADD_EXISTING_LOCATION))
+        if (_state.containsKey(ARG_ADD_EXISTING_LOCATION)) {
+            if (_state.getBoolean(ARG_ADD_EXISTING_LOCATION)) {
                 showAddExistingLocationProperties();
-            else
+            } else {
                 showCreateNewLocationProperties();
-        }
-        else
+            }
+        } else {
             showAddExistingLocationRequestProperties();
+        }
     }
 
-    protected void createStartProperties()
-    {
+    protected void createStartProperties() {
         _propertiesView.addProperty(new ExistingContainerPropertyEditor(this));
     }
 
-    protected void createNewLocationProperties()
-    {
+    protected void createNewLocationProperties() {
     }
 
-    protected void createExtProperties()
-    {
+    protected void createExtProperties() {
 
     }
-    protected boolean checkParams()
-    {
-        Uri loc = _state.containsKey(CreateContainerTaskFragmentBase.ARG_LOCATION) ? (Uri)_state.getParcelable(CreateContainerTaskFragmentBase.ARG_LOCATION) : null;
-        return loc!=null && !loc.toString().isEmpty();
+
+    protected boolean checkParams() {
+        Uri loc = _state.containsKey(CreateContainerTaskFragmentBase.ARG_LOCATION) ? (Uri) _state.getParcelable(CreateContainerTaskFragmentBase.ARG_LOCATION) : null;
+        return loc != null && !loc.toString().isEmpty();
     }
 
-    protected void showAddExistingLocationRequestProperties()
-    {
+    protected void showAddExistingLocationRequestProperties() {
         _propertiesView.setPropertiesState(false);
         _propertiesView.setPropertyState(R.string.create_new_container_or_add_existing_container, true);
     }
