@@ -1,0 +1,17 @@
+# Результаты сборки
+.gradle
+build
+app/build
+*.apk
+
+# Локальные файлы конфигурации
+local.properties
+.idea
+*.iml
+.vscode
+
+# Файлы операционной системы
+.DS_Store
+
+# Логи
+*.log
