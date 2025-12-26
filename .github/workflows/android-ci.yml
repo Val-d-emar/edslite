@@ -2,145 +2,83 @@ name: Android CI
 
 on:
   pull_request:
-    branches: ["dev", "main"]
+    branches: ["dev", "main", "feat/*"] # Добавил feat/* для тестов
   workflow_dispatch:
 
 jobs:
   # --- ЭТАП 1: СБОРКА ПРОЕКТА ---
   build:
-    # Используем latest версию Ubuntu
     runs-on: ubuntu-latest
 
     steps:
       # Шаг 1: Клонирование репозитория
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive # могут быть сабмодули
 
-      # Шаг 2: Установка недостающей зависимости для NDK r13b
-      # Скачиваем и устанавливаем libncurses5 и ее зависимость libtinfo5 из архива Ubuntu 18.04
-      - name: Install legacy dependencies
-        run: |
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
-          sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ bionic main universe"
-          sudo apt-get update
-          sudo apt-get install -y libncurses5 libtinfo5
-
-      # Шаг 2: Установка Java (JDK)
-      - name: Set up JDK 8
+      # Шаг 2: Установка Java 17 (Требуется для Android Gradle Plugin 8.0+)
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: "8"
+          java-version: "17"
           distribution: "temurin"
 
-      - name: Set up Gradle 5.6.4
+      # Шаг 3: Настройка кэширования Gradle (ускоряет сборку)
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
-          gradle-version: "5.6.4"
+          # Версия gradle берется из gradle-wrapper.properties в проекте
+          # Кэширование включено автоматически
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
 
-      # Шаг 3: Вручную скачиваем и настраиваем СТАРЫЙ Android SDK
-      - name: Set up Android SDK
-        run: |
-          # Скачиваем старую версию command-line tools
-          wget -q https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip -O sdk-tools.zip
-          # Создаем директории
-          mkdir -p $HOME/android-sdk
-          unzip -q sdk-tools.zip -d $HOME/android-sdk
-          # Устанавливаем переменные окружения
-          echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
-          # Принимаем лицензии и устанавливаем компоненты
-          yes | $HOME/android-sdk/tools/bin/sdkmanager --licenses > /dev/null
-          $HOME/android-sdk/tools/bin/sdkmanager "platforms;android-28" "build-tools;28.0.3"
+      # Шаг 4: Делаем gradlew исполняемым
+      - name: Make gradlew executable
+        run: chmod +x gradlew
 
-      # Шаг 4: Кеширование NDK
-      # Этот шаг попытается восстановить NDK из кеша GitHub
-      - name: Cache NDK
-        id: cache-ndk # Даем шагу id, чтобы ссылаться на его результат
-        uses: actions/cache@v4
-        with:
-          path: ~/android-ndk-r17c
-          key: ndk-r17c-${{ runner.os }}
+      # Шаг 5: Сборка Debug APK
+      - name: Build Debug APK
+        run: ./gradlew :app:assembleDebug --no-daemon --stacktrace
 
-      # Шаг 5: Скачивание NDK, если его нет в кеше
-      # Этот шаг выполнится только если предыдущий шаг не нашел кеш
-      - name: Download and extract NDK
-        if: steps.cache-ndk.outputs.cache-hit != 'true'
-        run: |
-          wget -q https://dl.google.com/android/repository/android-ndk-r17c-linux-x86_64.zip
-          unzip -q android-ndk-r17c-linux-x86_64.zip -d $HOME
+      # Шаг 6: Сборка Release APK (по желанию, можно отключить для PR)
+      - name: Build Release APK
+        run: ./gradlew :app:assembleRelease --no-daemon --stacktrace
 
-      # Шаг 6: Создание файла local.properties
-      # Этот шаг выполняется всегда, чтобы прописать путь к NDK (скачанному или из кеша)
-      - name: Create local.properties
-        run: |
-          echo "sdk.dir=$HOME/android-sdk" > local.properties
-          echo "ndk.dir=$HOME/android-ndk-r17c" > local.properties
-
-      # Шаг 7: Сборка debug APK
-      # Запускаем задачу 'assembleDebug', которая создает неподписанный APK.
-      - name: Build with Gradle Debug 
-        run: |
-          ANDROID_NDK_HOME=$HOME/android-ndk-r17c gradle :app:assembleLiteLicCheckNoneNoinetNofsmlDebug --no-daemon --parallel
-          # опции для ускорения
-          # --no-daemon --parallel
-
-      # Шаг 8: Сборка release APK
-      - name: Build with Gradle Release 
-        run: |
-          ANDROID_NDK_HOME=$HOME/android-ndk-r17c gradle :app:assembleLiteLicCheckNoneNoinetNofsmlRelease --no-daemon --parallel
-          # опции для ускорения
-          # --no-daemon --parallel      
-
-      - name: List available tasks
-        if: always()
-        run: gradle :app:tasks
-
-      # --- ДИАГНОСТИЧЕСКИЙ ШАГ ---
-      # Этот шаг покажет точную структуру папок
+      # --- ДИАГНОСТИКА (если сборка упадет, увидим, где лежат файлы) ---
       - name: List build outputs
-        run: ls -R app/build/outputs
+        if: always()
+        run: ls -R app/build/outputs/apk/ || true
 
-      # Шаг 8: Загрузка APK как артефакта
-      # Находим собранный APK и загружаем его с помощью action 'upload-artifact'.
-      # После этого его можно будет скачать со страницы workflow.
+      # Шаг 7: Загрузка APK как артефакта
       - name: Upload APK
-        # if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4
         with:
-          # Имя артефакта, который можно скачать со страницы workflow
-          name: preview-eds-apk
-          # Путь к файлу APK. Рекурсивный поиск APK во всей папке 'apk'
+          name: edslite-build
           path: app/build/outputs/apk/**/*.apk
 
   # --- ЭТАП 2: ОТЧЕТ В PULL REQUEST ---
   report:
-    # Запускается после сборки
     needs: build
-    # Запускается всегда (и при успехе, и при провале), но только для Pull Request'ов
     if: always() && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    # Даем права на запись комментариев в PR
     permissions:
       pull-requests: write
 
     steps:
-      # Шаг 2.1: Генерируем ссылку на страницу с результатами
       - name: Generate workflow run URL
         id: run-url
         run: echo "url=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_OUTPUT
 
-      # Шаг 2.2: Комментарий в случае УСПЕХА
       - name: Post success comment
         if: needs.build.result == 'success'
         uses: marocchino/sticky-pull-request-comment@v2
         with:
-          # Уникальный заголовок, чтобы экшен мог найти и обновить свой комментарий
           header: build-report
           message: |
             ✅ **Сборка прошла успешно!**
 
-            - **Скачать APK:** [preview-apk.zip](${{ steps.run-url.outputs.url }})
+            - **Скачать APK:** [edslite-build.zip](${{ steps.run-url.outputs.url }})
 
-      # Шаг 2.3: Комментарий в случае ПРОВАЛА
       - name: Post failure comment
         if: needs.build.result == 'failure'
         uses: marocchino/sticky-pull-request-comment@v2
@@ -149,4 +87,4 @@ jobs:
           message: |
             ❌ **Сборка провалилась.**
 
-            - **Логи ошибки:** [Logs](${{ steps.run-url.outputs.url }})
+            - **Логи:** [GitHub Actions Log](${{ steps.run-url.outputs.url }})
