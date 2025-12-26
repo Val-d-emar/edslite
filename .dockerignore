@@ -12,6 +12,10 @@ local.properties
 
 # Файлы операционной системы
 .DS_Store
+*.sh
 
 # Логи
 *.log
+fork_diffs
+fork_analysis
+fork_summaries
