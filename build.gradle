@@ -25,18 +25,18 @@ buildscript {
     }
 }
 
-allprojects {
-    repositories {
-        maven { url 'https://maven.aliyun.com/repository/central' }
-        maven { url 'https://maven.aliyun.com/repository/public' }
-        maven { url 'https://maven.aliyun.com/repository/google' }
-        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
-        maven { url 'https://developer.huawei.com/repo/' }
-        google()
-        mavenCentral()
+// allprojects {
+//     repositories {
+//         maven { url 'https://maven.aliyun.com/repository/central' }
+//         maven { url 'https://maven.aliyun.com/repository/public' }
+//         maven { url 'https://maven.aliyun.com/repository/google' }
+//         maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+//         maven { url 'https://developer.huawei.com/repo/' }
+//         google()
+//         mavenCentral()
 
-        maven { url 'https://www.jitpack.io' }
-        maven { url 'https://dl.bintray.com/jenly/maven' }
-        maven { url 'https://repo.eclipse.org/content/repositories/paho-releases/' }
-    }
-}
+//         maven { url 'https://www.jitpack.io' }
+//         maven { url 'https://dl.bintray.com/jenly/maven' }
+//         maven { url 'https://repo.eclipse.org/content/repositories/paho-releases/' }
+//     }
+// }
