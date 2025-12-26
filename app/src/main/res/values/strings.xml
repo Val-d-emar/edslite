@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:xliff="http://schemas.android.com/tools">
+<!-- <resources xmlns:xliff="http://schemas.android.com/tools"> -->
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="add_container">Add existing container</string>
     <string name="eds" translatable="false"><xliff:g id="program_name">EDS Lite</xliff:g></string>
     <string name="ok">OK</string>
