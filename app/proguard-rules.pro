@@ -64,3 +64,9 @@
 
 # Logger (ругается на SLF4J)
 -dontwarn org.slf4j.**
+
+# --- Правила для IJKPlayer ---
+# Не удалять и не переименовывать классы и методы из этой библиотеки,
+# так как они вызываются из нативного C++ кода.
+-keep class tv.danmaku.ijk.media.player.** { *; }
+-keep interface tv.danmaku.ijk.media.player.misc.** { *; }
