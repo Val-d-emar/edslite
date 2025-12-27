@@ -72,6 +72,7 @@ public class EdsApplicationBase extends Application {
             @Override
             public void run() {
                 try {
+                    android.os.Process.killProcess(android.os.Process.myPid());
                     System.exit(0);
                 } catch (Throwable e) {
                     Logger.log(e);
