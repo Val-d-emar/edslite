@@ -290,10 +290,10 @@
     <string name="make_a_donation">Make a donation</string>
     <string name="check_the_full_version">Check the full version</string>
     <string name="check_source_code">Check the source code</string>
-    <string name="tips">提示</string>
-    <string name="show_previews_desc">在列表中显示缩略图</string>
-    <string name="master_password_desc">应用每次启动时需要输入该密码</string>
-    <string name="hide_eds_screen_from_other_apps_desc">是否允许截屏</string>
-    <string name="show_hidden_files">是否显示隐藏文件</string>
-    <string name="show_hidden_files_desc">是否显示隐藏文件</string>
+    <string name="tips">Tips</string>
+    <string name="show_previews_desc">Show previews in the file manager</string>
+    <string name="master_password_desc">This password will be required each time the application is started</string>
+    <string name="hide_eds_screen_from_other_apps_desc">Allow screen capture</string>
+    <string name="show_hidden_files">Show hidden files</string>
+    <string name="show_hidden_files_desc">Show hidden files</string>
 </resources>

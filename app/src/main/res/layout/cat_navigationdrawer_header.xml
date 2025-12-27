@@ -42,9 +42,9 @@
         android:text="@string/eds"
         android:textAppearance="?attr/textAppearanceTitleLarge" />
 
-    <TextView
+    <!-- <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="ttm@126.com"
-        android:textAppearance="?attr/textAppearanceBodyMedium" />
+        android:textAppearance="?attr/textAppearanceBodyMedium" /> -->
 </LinearLayout>

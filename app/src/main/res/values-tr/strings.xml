@@ -74,10 +74,10 @@
     <string name="auto_close_container">Hiçbir veri okunmadığı veya yazılmadığı zaman konteyneri otomatik kapat.</string>
     <string name="extension_mime_override">Her bir satır için, dosya uzantısına bağlı dosya kimlik tanımlayıcısını (mime type) geçersiz kıl, örneğin \"txt text/plain\".</string>
     <string name="path_to_container">Konteynerın Kendisine Yol</string>
-    <string name="tips">提示</string>
-    <string name="show_previews_desc">在列表中显示缩略图</string>
-    <string name="master_password_desc">应用每次启动时需要输入该密码</string>
-    <string name="hide_eds_screen_from_other_apps_desc">是否允许截屏</string>
-    <string name="show_hidden_files">是否显示隐藏文件</string>
-    <string name="show_hidden_files_desc">是否显示隐藏文件</string>
+    <string name="tips">İpuçları</string>
+    <string name="show_previews_desc">Listede küçük resimleri göster</string>
+    <string name="master_password_desc">Bu şifre uygulamanın her başlatılışında gerekecektir</string>
+    <string name="hide_eds_screen_from_other_apps_desc">Ekran görüntüsü yakalamaya izin ver</string>
+    <string name="show_hidden_files">Gizli dosyaları göster</string>
+    <string name="show_hidden_files_desc">Gizli dosyaları göster</string>
 </resources>
