@@ -54,3 +54,13 @@
 -dontwarn javax.annotation.**
 
 -keep class com.sovworks.eds.fs.util.FileStat { *; }
+
+# PhotoView (используется StfalconImageViewer)
+-keep class com.github.chrisbanes.photoview.** { *; }
+-dontwarn com.github.chrisbanes.photoview.**
+
+# RxLifecycle (ругается на аннотации)
+-dontwarn javax.annotation.**
+
+# Logger (ругается на SLF4J)
+-dontwarn org.slf4j.**
