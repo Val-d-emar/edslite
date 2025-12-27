@@ -6,6 +6,7 @@
 #include "com_sovworks_eds_crypto_modes_CTR.h"
 #include <stdlib.h>
 #include <android/log.h>
+#include <string.h>
 #include "ctr.h"
 
 

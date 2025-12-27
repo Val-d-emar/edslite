@@ -6,6 +6,7 @@
 #include "com_sovworks_eds_crypto_modes_CBC.h"
 #include <stdlib.h>
 #include <android/log.h>
+#include <string.h>
 #include "cbc.h"
 
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, "EDS (native code edscbc)", __VA_ARGS__);

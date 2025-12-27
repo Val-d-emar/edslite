@@ -2,7 +2,7 @@
 
 #include <memory.h>
 #include "whirlpool.h"
-
+#include <string.h>
 
 #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
 #pragma GCC diagnostic ignored "-Wpointer-to-int-cast"

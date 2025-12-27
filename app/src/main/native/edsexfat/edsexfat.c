@@ -7,6 +7,7 @@
 #include "../util/jniutil.h"
 #include "raio.h"
 #include "mkfs/mkexfat.h"
+#include <string.h>
 
 #define EDSEXFAT_VERSION 1001
 

@@ -9,7 +9,7 @@
 
 #include <block_cipher.h>
 #include "gost89.h"
-
+#include <string.h>
 
 //#ifdef __cplusplus
 //extern "C" {
