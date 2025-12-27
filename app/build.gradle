@@ -131,7 +131,8 @@ dependencies {
 
     // Images
     // implementation 'com.github.stfalcon-studio:StfalconImageViewer:v1.0.1'
-    implementation 'com.github.stfalcon:stfalcon-imageviewer:1.0.1' {
+    // implementation 'com.github.stfalcon:stfalcon-imageviewer:1.0.1'
+    implementation(group: 'com.github.stfalcon', name: 'stfalcon-imageviewer', version: '1.0.1') {
         exclude group: 'com.github.chrisbanes', module: 'PhotoView'
     }
     implementation 'com.github.WenHuayu:GlidePlaceholderDrawable:1.0.0'
