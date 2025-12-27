@@ -34,4 +34,14 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+
+    // Явно подключаем IJKPlayer для ВСЕХ архитектур
+    def ijkVersion = "0.8.8"
+    // Основная Java-часть
+    api "tv.danmaku.ijk.media:ijkplayer-java:$ijkVersion"
+    // Нативные библиотеки для разных процессоров
+    api "tv.danmaku.ijk.media:ijkplayer-armv7a:$ijkVersion"
+    api "tv.danmaku.ijk.media:ijkplayer-arm64:$ijkVersion"
+    api "tv.danmaku.ijk.media:ijkplayer-x86:$ijkVersion"
+    api "tv.danmaku.ijk.media:ijkplayer-x86_64:$ijkVersion"
 }

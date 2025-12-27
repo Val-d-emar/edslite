@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId 'com.sovworks.eds.android'
-        minSdkVersion 24
+        minSdkVersion 23
         targetSdkVersion 35
 
         versionCode 238
