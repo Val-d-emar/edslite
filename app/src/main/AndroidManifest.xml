@@ -24,7 +24,8 @@
         android:fullBackupContent="@xml/backupscheme"
         android:icon="@drawable/ic_launcher_eds"
         android:label="@string/eds"
-        android:theme="@style/Theme.Material3.Default">
+        android:theme="@style/Theme.Material3.Default"
+        android:enableOnBackInvokedCallback="true">
         <activity
             android:name=".filemanager.activities.video.VideoActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"

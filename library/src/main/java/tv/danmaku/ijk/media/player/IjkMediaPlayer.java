@@ -190,12 +190,12 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
                 }
 
                 // 这个是原来的
-                // libLoader.loadLibrary("ijkffmpeg");
-                // libLoader.loadLibrary("ijksdl");
-                // libLoader.loadLibrary("ijkplayer");
-                // 新的是这个
                 libLoader.loadLibrary("ijkffmpeg");
-                libLoader.loadLibrary("a4ijkplayer");
+                libLoader.loadLibrary("ijksdl");
+                libLoader.loadLibrary("ijkplayer");
+                // 新的是这个
+                // libLoader.loadLibrary("ijkffmpeg");
+                // libLoader.loadLibrary("a4ijkplayer");
                 mIsLibLoaded = true;
             }
         }
