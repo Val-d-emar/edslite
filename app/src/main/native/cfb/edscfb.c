@@ -6,6 +6,7 @@
 #include "com_sovworks_eds_crypto_modes_CFB.h"
 #include <stdlib.h>
 #include <android/log.h>
+#include <string.h>
 #include "cfb.h"
 
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, "EDS (native code edscfb)", __VA_ARGS__);

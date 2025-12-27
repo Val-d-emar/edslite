@@ -11,6 +11,7 @@
 #include <block_cipher.h>
 #include "../xts/xts.h"
 #include <string.h>
+#include <unistd.h>
 
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, "EDS (native code localxts)", __VA_ARGS__);
 #ifdef DEBUG
