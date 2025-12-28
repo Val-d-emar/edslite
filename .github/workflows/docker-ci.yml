@@ -12,7 +12,7 @@ jobs:
 
     # --- ГЛАВНОЕ УСКОРЕНИЕ: ЗАПУСКАЕМ ЗАДАЧУ ВНУТРИ ГОТОВОГО КОНТЕЙНЕРА ---
     container:
-      image: valdemarsu/android-apk-builder:jdk21-sdk35-heavy-eds
+      image: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE_NAME }}
 
     steps:
       # Шаг 1: Клонируем репозиторий (код будет доступен внутри контейнера)

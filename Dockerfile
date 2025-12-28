@@ -11,6 +11,7 @@ RUN apt-get update && \
     wget \
     unzip \
     openjdk-21-jdk \
+    git \
     && \
     # Чистим кеши apt, чтобы уменьшить размер образа
     rm -rf /var/lib/apt/lists/*
