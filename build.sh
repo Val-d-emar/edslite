@@ -16,9 +16,10 @@ usage() {
     echo "Команды:"
     echo "  (no args)     Запускает одноразовую сборку и удаляет контейнер."
     echo "  -d            Запускает контейнер в фоновом режиме (detached) для последующих пересборок."
-    echo "  --exec, -e    Выполняет быструю пересборку в уже запущенном контейнере."
+    echo "  --build, -b   Выполняет быструю пересборку в уже запущенном контейнере."
     echo "  --help, -h    Показывает эту справку."
-    echo "  --stop, -s    Останавливает и удаляет фоновый контейнер."
+    echo "  --stop, -s    Останавливает фоновый контейнер."
+    echo "  --remove, -rm Останавливает и Удаляет фоновый контейнер."
     echo ""
     echo "Опции:"
     echo "  --install, -i Устанавливает APK в Android устройство после успешной сборки."
@@ -35,11 +36,13 @@ BUILD_TYPE="debug"
 
 for arg in "$@"; do
   case $arg in
-    -d) COMMAND="start" ;;
+    -d) COMMAND="demon" ;;
     -h|--help) usage ;;
     -i|--install) INSTALL_FLAG=true ;;
-    -e|--exec) COMMAND="build" ;;
+    -b|--build) COMMAND="build" ;;
     -s|--stop) COMMAND="stop" ;;
+    -r|--run) COMMAND="run" ;;
+    -rm|--remove) COMMAND="rm" ;;
     debug) BUILD_TYPE="debug" ;;
     release) BUILD_TYPE="release" ;;
     # Проверяем, что аргумент не флаг, прежде чем считать его IP-адресом
@@ -95,10 +98,32 @@ case $COMMAND in
     if [ ! "$(docker ps -a -q -f name=$CONTAINER_NAME)" ]; then
         echo "Контейнер '$CONTAINER_NAME' не существует."
     else
+        echo "Останавливаю контейнер '$CONTAINER_NAME'..."
+        docker stop $CONTAINER_NAME > /dev/null || true
+        echo "Контейнер остановлен."
+    fi
+    exit 0
+    ;;
+
+"rm")
+    if [ ! "$(docker ps -a -q -f name=$CONTAINER_NAME)" ]; then
+        echo "Контейнер '$CONTAINER_NAME' не существует."
+    else
         echo "Останавливаю и удаляю контейнер '$CONTAINER_NAME'..."
         docker stop $CONTAINER_NAME > /dev/null || true
         docker rm $CONTAINER_NAME > /dev/null || true
         echo "Контейнер остановлен и удален."
+    fi
+    exit 0
+    ;;
+
+"run")
+    if [ ! "$(docker ps -a -q -f name=$CONTAINER_NAME)" ]; then
+        echo "Контейнер '$CONTAINER_NAME' не существует."
+    else
+        echo "Запускаю контейнер '$CONTAINER_NAME'..."
+        docker start $CONTAINER_NAME
+        echo "Контейнер запущен."
     fi
     exit 0
     ;;
@@ -113,7 +138,7 @@ case $COMMAND in
     BUILD_EXIT_CODE=$?
     ;;
 
-"start")
+"demon")
     if [ "$(docker ps -a -q -f name=$CONTAINER_NAME)" ]; then
         echo "⚠️  Контейнер с именем '$CONTAINER_NAME' уже существует. Используйте '--exec' для пересборки или '--stop' для удаления."
         exit 1

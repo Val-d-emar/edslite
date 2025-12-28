@@ -1,10 +1,16 @@
+# Файлы IDE
 *.iml
-.gradle
 /local.properties
 /.idea
 .DS_Store
 /build
 /captures
 .cxx/
-.gradle
 .vscode
+
+# Локальные артефакты сборки
+.gradle/
+build/
+app/build/
+library/build/
+photoview/build/
