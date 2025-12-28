@@ -2,7 +2,8 @@
 .gradle
 build
 app/build
-*.apk
+library/build
+photoview/build
 
 # Локальные файлы конфигурации
 local.properties

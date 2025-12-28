@@ -33,4 +33,4 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE_NAME }}
+            ${{ vars.DOCKERHUB_IMAGE_FULL_NAME }}:${{ vars.DOCKERHUB_IMAGE_TAG }}

@@ -34,7 +34,7 @@ RUN wget -q https://dl.google.com/android/repository/commandlinetools-linux-${AN
     mv ${ANDROID_SDK_ROOT}/cmdline-tools/cmdline-tools ${ANDROID_SDK_ROOT}/cmdline-tools/latest && \
     rm sdk-tools.zip && \
     yes | sdkmanager --licenses > /dev/null && \
-    sdkmanager "platforms;android-35" "build-tools;34.0.0" "platform-tools" "cmake;3.22.1"
+    sdkmanager "platforms;android-35" "platforms;android-34" "platforms;android-33" "build-tools;34.0.0" "platform-tools" "cmake;3.22.1"
 
 # Создаем директорию, куда будет монтироваться проект
 WORKDIR /app

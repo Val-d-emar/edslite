@@ -12,7 +12,8 @@ jobs:
 
     # --- ГЛАВНОЕ УСКОРЕНИЕ: ЗАПУСКАЕМ ЗАДАЧУ ВНУТРИ ГОТОВОГО КОНТЕЙНЕРА ---
     container:
-      image: ${{ vars.DOCKERHUB_IMAGE_FULL_NAME }}
+      image: |
+        ${{ vars.DOCKERHUB_IMAGE_FULL_NAME }}:${{ vars.DOCKERHUB_IMAGE_TAG }}
 
     steps:
       # Шаг 1: Клонируем репозиторий (код будет доступен внутри контейнера)
