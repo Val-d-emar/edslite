@@ -34,3 +34,4 @@ jobs:
           push: true
           tags: |
             ${{ vars.DOCKERHUB_IMAGE_FULL_NAME }}:${{ vars.DOCKERHUB_IMAGE_TAG }}
+            ${{ vars.DOCKERHUB_IMAGE_FULL_NAME }}:latest
