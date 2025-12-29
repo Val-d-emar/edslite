@@ -62,6 +62,20 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
+      # --- УСКОРЕНИЕ: Копируем из образа то, чего не хватает ---
+      - name: Pre-load Dependencies from Docker Image
+        run: |
+          echo "Syncing dependencies from pre-warmed Docker image..."
+          # Создаем папку, если её нет
+          mkdir -p $GRADLE_USER_HOME
+          
+          # cp -rn: рекурсивно, NO CLOBBER (не перезаписывать существующие файлы)
+          # Копируем из /root/.gradle (где они лежат в образе) в рабочую папку
+          # '|| true' чтобы не падать на мелких ошибках прав доступа
+          cp -rn /root/.gradle/. $GRADLE_USER_HOME/ || true
+          
+          echo "Dependencies synced."
+
       # Шаг 2: Сборка Debug и Release APK
       # gradlew уже есть, зависимости уже скачаны (в образе)
       # Запускаем сборку сразу
