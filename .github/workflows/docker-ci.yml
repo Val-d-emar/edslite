@@ -5,6 +5,11 @@ on:
     branches: ["dev", "main", "feat/*"] # Добавил feat/* для тестов
   workflow_dispatch:
 
+env:
+  # ... docker image issues...
+  #  Кладем кеш Gradle в рабочую папку, чтобы actions/cache его видел
+  GRADLE_USER_HOME: ${{ github.workspace }}/.gradle
+
 jobs:
   # --- ЭТАП 1: СБОРКА ПРОЕКТА ---
   build:
@@ -22,7 +27,7 @@ jobs:
           submodules: recursive
 
       # --- ДОБАВЛЯЕМ КЕШИРОВАНИЕ ---
-      - name: Setup Gradle
+      - name: Setup Gradle Cache
         # uses: gradle/actions/setup-gradle@v4 # Не работает с толстым докером
           # Включаем кеширование (оно включено по умолчанию)
           # Это сохранит результаты компиляции между запусками CI
@@ -32,9 +37,10 @@ jobs:
           # Мы сохраняем только папку build-cache (результаты) 
           # и transforms (обработанные библиотеки)
           path: |
-            ~/.gradle/caches/build-cache-1
-            ~/.gradle/caches/transforms-3
-            ~/.gradle/caches/transforms-4
+            .gradle/caches/build-cache-1
+            .gradle/caches/transforms-3
+            .gradle/caches/transforms-4
+            .gradle/wrapper
           # Ключ зависит от хеша всех gradle-файлов. Если они меняются — кеш сбрасывается.
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           # Если точного совпадения нет, берем любой старый кеш, чтобы ускорить сборку
