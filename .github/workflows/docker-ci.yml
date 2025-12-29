@@ -24,17 +24,30 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules:
+            recursive
+
+      # 2. Считаем хеш файлов вручную внутри контейнера
+      - name: Calculate Gradle Hash
+        run: |
+          # Находим все файлы *.gradle* и gradle-wrapper.properties
+          # Сортируем список, считаем хеш каждого файла, и потом хеш от результата
+          # Это аналог hashFiles, но работает внутри Docker
+          GRADLE_HASH=$(find . -type f \( -name "*.gradle*" -o -name "gradle-wrapper.properties" \) -exec sha256sum {} + | sort | sha256sum | awk '{print $1}')
+
+          echo "Calculated hash: $GRADLE_HASH"
+          # Сохраняем в переменную окружения для следующих шагов
+          echo "GRADLE_HASH=$GRADLE_HASH" >> $GITHUB_ENV
 
       # --- ДОБАВЛЯЕМ КЕШИРОВАНИЕ ---
       - name: Setup Gradle Cache
         # uses: gradle/actions/setup-gradle@v4 # Не работает с толстым докером
-          # Включаем кеширование (оно включено по умолчанию)
-          # Это сохранит результаты компиляции между запусками CI
-          # cache-read-only: false        
+        # Включаем кеширование (оно включено по умолчанию)
+        # Это сохранит результаты компиляции между запусками CI
+        # cache-read-only: false
         uses: actions/cache@v4 # Ручная реализация
         with:
-          # Мы сохраняем только папку build-cache (результаты) 
+          # Мы сохраняем только папку build-cache (результаты)
           # и transforms (обработанные библиотеки)
           path: |
             .gradle/caches/build-cache-1
@@ -42,7 +55,9 @@ jobs:
             .gradle/caches/transforms-4
             .gradle/wrapper
           # Ключ зависит от хеша всех gradle-файлов. Если они меняются — кеш сбрасывается.
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          # key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          # ВМЕСТО hashFiles ИСПОЛЬЗУЕМ ПЕРЕМЕННУЮ чтобы избежать ограничений прав доступа
+          key: ${{ runner.os }}-gradle-${{ env.GRADLE_HASH }}
           # Если точного совпадения нет, берем любой старый кеш, чтобы ускорить сборку
           restore-keys: |
             ${{ runner.os }}-gradle-
@@ -53,7 +68,7 @@ jobs:
       - name: Build Debug & Release APK
         run: |
           ./gradlew assembleDebug assembleRelease --no-daemon --stacktrace --build-cache
-      
+
       # --- ДИАГНОСТИКА (если сборка упадет, увидим, где лежат файлы) ---
       - name: List build outputs
         if: always()
