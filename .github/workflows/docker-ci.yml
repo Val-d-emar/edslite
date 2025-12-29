@@ -23,11 +23,23 @@ jobs:
 
       # --- ДОБАВЛЯЕМ КЕШИРОВАНИЕ ---
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
+        # uses: gradle/actions/setup-gradle@v4 # Не работает с толстым докером
           # Включаем кеширование (оно включено по умолчанию)
           # Это сохранит результаты компиляции между запусками CI
-          cache-read-only: false
+          # cache-read-only: false        
+        uses: actions/cache@v4 # Ручная реализация
+        with:
+          # Мы сохраняем только папку build-cache (результаты) 
+          # и transforms (обработанные библиотеки)
+          path: |
+            ~/.gradle/caches/build-cache-1
+            ~/.gradle/caches/transforms-3
+            ~/.gradle/caches/transforms-4
+          # Ключ зависит от хеша всех gradle-файлов. Если они меняются — кеш сбрасывается.
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          # Если точного совпадения нет, берем любой старый кеш, чтобы ускорить сборку
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
       # Шаг 2: Сборка Debug и Release APK
       # gradlew уже есть, зависимости уже скачаны (в образе)
