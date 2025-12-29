@@ -1,0 +1,129 @@
+name: Android CI
+
+on:
+  pull_request:
+    branches: ["dev", "main", "feat/*"] # Добавил feat/* для тестов
+  workflow_dispatch:
+
+env:
+  # ... docker image issues...
+  #  Кладем кеш Gradle в рабочую папку, чтобы actions/cache его видел
+  GRADLE_USER_HOME: ${{ github.workspace }}/.gradle
+
+jobs:
+  # --- ЭТАП 1: СБОРКА ПРОЕКТА ---
+  build:
+    runs-on: ubuntu-latest
+
+    # --- ГЛАВНОЕ УСКОРЕНИЕ: ЗАПУСКАЕМ ЗАДАЧУ ВНУТРИ ГОТОВОГО КОНТЕЙНЕРА ---
+    container:
+      image: "${{ vars.DOCKERHUB_IMAGE_FULL_NAME }}:${{ vars.DOCKERHUB_IMAGE_TAG }}"
+
+    steps:
+      # Шаг 1: Клонируем репозиторий (код будет доступен внутри контейнера)
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules:
+            recursive
+
+      # 2. Считаем хеш файлов вручную внутри контейнера
+      - name: Calculate Gradle Hash
+        run: |
+          # Находим все файлы *.gradle* и gradle-wrapper.properties
+          # Сортируем список, считаем хеш каждого файла, и потом хеш от результата
+          # Это аналог hashFiles, но работает внутри Docker
+          GRADLE_HASH=$(find . -type f \( -name "*.gradle*" -o -name "gradle-wrapper.properties" \) -exec sha256sum {} + | sort | sha256sum | awk '{print $1}')
+
+          echo "Calculated hash: $GRADLE_HASH"
+          # Сохраняем в переменную окружения для следующих шагов
+          echo "GRADLE_HASH=$GRADLE_HASH" >> $GITHUB_ENV
+
+      # --- ДОБАВЛЯЕМ КЕШИРОВАНИЕ ---
+      - name: Setup Gradle Cache
+        # uses: gradle/actions/setup-gradle@v4 # Не работает с толстым докером
+        # Включаем кеширование (оно включено по умолчанию)
+        # Это сохранит результаты компиляции между запусками CI
+        # cache-read-only: false
+        uses: actions/cache@v4 # Ручная реализация
+        with:
+          # Мы сохраняем только папку build-cache (результаты)
+          # и transforms (обработанные библиотеки)
+          path: |
+            .gradle/caches/build-cache-1
+            .gradle/caches/transforms-3
+            .gradle/caches/transforms-4
+            .gradle/wrapper
+          # Ключ зависит от хеша всех gradle-файлов. Если они меняются — кеш сбрасывается.
+          # key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          # ВМЕСТО hashFiles ИСПОЛЬЗУЕМ ПЕРЕМЕННУЮ чтобы избежать ограничений прав доступа
+          key: ${{ runner.os }}-gradle-${{ env.GRADLE_HASH }}
+          # Если точного совпадения нет, берем любой старый кеш, чтобы ускорить сборку
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # --- УСКОРЕНИЕ: Копируем из образа то, чего не хватает ---
+      - name: Pre-load Dependencies from Docker Image
+        run: |
+          echo "Syncing dependencies from pre-warmed Docker image..."
+          # Создаем папку, если её нет
+          mkdir -p $GRADLE_USER_HOME
+          
+          # cp -rn: рекурсивно, NO CLOBBER (не перезаписывать существующие файлы)
+          # Копируем из /root/.gradle (где они лежат в образе) в рабочую папку
+          # '|| true' чтобы не падать на мелких ошибках прав доступа
+          cp -r --update=none /root/.gradle/. $GRADLE_USER_HOME/ || true
+          
+          echo "Dependencies synced."
+
+      # Шаг 2: Сборка Debug и Release APK
+      # gradlew уже есть, зависимости уже скачаны (в образе)
+      # Запускаем сборку сразу
+      - name: Build Debug & Release APK
+        run: |
+          ./gradlew assembleDebug assembleRelease --no-daemon --stacktrace --build-cache
+
+      # --- ДИАГНОСТИКА (если сборка упадет, увидим, где лежат файлы) ---
+      - name: List build outputs
+        if: always()
+        run: ls -R app/build/outputs/apk/ || true
+
+      # Шаг 3: Загрузка APK как артефакта
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: edslite-build
+          path: app/build/outputs/apk/**/*.apk
+
+  # --- ЭТАП 2: ОТЧЕТ В PULL REQUEST ---
+  report:
+    needs: build
+    if: always() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Generate workflow run URL
+        id: run-url
+        run: echo "url=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_OUTPUT
+
+      - name: Post success comment
+        if: needs.build.result == 'success'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: build-report
+          message: |
+            ✅ **Сборка прошла успешно!**
+
+            - **Скачать APK:** [edslite-build.zip](${{ steps.run-url.outputs.url }})
+
+      - name: Post failure comment
+        if: needs.build.result == 'failure'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: build-report
+          message: |
+            ❌ **Сборка провалилась.**
+
+            - **Логи:** [GitHub Actions Log](${{ steps.run-url.outputs.url }})

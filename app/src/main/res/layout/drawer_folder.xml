@@ -1,20 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  style="@style/DrawerRow">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="64dp"
+    android:paddingHorizontal="16dp"
+    tools:background="#000000">
+
+    <TextView
+        android:id="@android:id/text1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:layout_toStartOf="@android:id/icon"
+        android:ellipsize="marquee"
+        android:singleLine="true"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        tools:text="左侧菜单折叠展开点击区域" />
+
     <ImageView
         android:id="@android:id/icon"
-        android:layout_alignParentRight="true"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:src="?attr/collapseIcon"
-        style="@style/DrawerMainIcon" />
-    <TextView
-		android:id="@android:id/text1"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true"
-        android:layout_toLeftOf="@android:id/icon"
-        android:layout_toStartOf="@android:id/icon"
-		style="@style/DrawerMainTitle" />
+        android:layout_margin="2dp"
+        android:contentDescription="折叠展开图标"
+        android:src="@drawable/ic_action_collapse" />
 </RelativeLayout>

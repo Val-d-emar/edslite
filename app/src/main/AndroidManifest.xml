@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    package="com.sovworks.eds.android"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <supports-screens android:anyDensity="true"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <supports-screens android:anyDensity="true" />
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
     <application
         android:name="com.sovworks.eds.android.EdsApplication"
@@ -15,120 +24,233 @@
         android:fullBackupContent="@xml/backupscheme"
         android:icon="@drawable/ic_launcher_eds"
         android:label="@string/eds"
-        android:theme="@style/Theme.EDS">
+        android:theme="@style/Theme.Material3.Default"
+        android:enableOnBackInvokedCallback="true">
+        <activity
+            android:name=".filemanager.activities.video.VideoActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            <!--<intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>-->
+        </activity>
+        <activity
+            android:name=".filemanager.activities.zip.ZipFileActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            <!--<intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>-->
+        </activity>
+        <activity
+            android:name=".filemanager.activities.rar.RarFileActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
+            <!--<intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>-->
+        </activity>
+        <!--应用首页-->
         <activity
             android:name=".filemanager.activities.FileManagerActivity"
-            android:label="@string/eds">
+            android:exported="true"
+            android:label="@string/eds"
+            android:theme="@style/Theme.Material3.Default.NoActionBar">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
-                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.DEFAULT" />
 
-                <action android:name="android.intent.action.SEND"/>
-                <action android:name="android.intent.action.SEND_MULTIPLE"/>
+                <action android:name="android.intent.action.SEND" />
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
 
-                <data android:mimeType="*/*"/>
+                <data android:mimeType="*/*" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="resource/folder"/>
-                <data android:scheme="file"/>
-                <data android:host="*"/>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="resource/folder" />
+                <data android:scheme="file" />
+                <data android:host="*" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.PICK"/>
-                <data android:mimeType="*/*"/>
+                <action android:name="android.intent.action.PICK" />
+                <data android:mimeType="*/*" />
             </intent-filter>
             <intent-filter tools:ignore="AppIndexingApiError">
-                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.VIEW" />
 
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <category android:name="android.intent.category.OPENABLE"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.OPENABLE" />
 
-                <data android:scheme="file"/>
-                <data android:scheme="content"/>
-                <data android:mimeType="*/*"/>
-                <data android:pathPattern=".*\\.tc"/>
-                <data android:pathPattern=".*\\.eds"/>
-                <data android:pathPattern=".*\\.luks"/>
-                <data android:pathPattern=".*\\.vc"/>
-                <data android:pathPattern=".*\\.hc"/>
-                <data android:pathPattern=".*\\.dvf"/>
-                <data android:host="*"/>
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:mimeType="*/*" />
+                <data android:pathPattern=".*\\.tc" />
+                <data android:pathPattern=".*\\.eds" />
+                <data android:pathPattern=".*\\.luks" />
+                <data android:pathPattern=".*\\.vc" />
+                <data android:pathPattern=".*\\.hc" />
+                <data android:pathPattern=".*\\.dvf" />
+                <data android:host="*" />
             </intent-filter>
         </activity>
-        <activity android:name=".locations.activities.LocationListActivity" android:windowSoftInputMode="adjustPan" />
-        <activity android:name=".locations.activities.CreateLocationActivity" android:windowSoftInputMode="adjustPan" />
+        <!--容器列表-->
+        <activity
+            android:name=".locations.activities.LocationListActivity"
+            android:theme="@style/Theme.Material3.Default.NoActionBar"
+            android:windowSoftInputMode="adjustPan" />
+        <!--添加容器-->
+        <activity
+            android:name=".locations.activities.CreateLocationActivity"
+            android:theme="@style/Theme.Material3.Default.NoActionBar"
+            android:windowSoftInputMode="adjustPan" />
+        <!--点击容器,对话框左下角的容器设置,容器未打开-->
+        <activity
+            android:name=".settings.activities.OpeningOptionsActivity"
+            android:label="@string/settings"
+            android:theme="@style/Theme.Material3.Default.NoActionBar"
+            android:windowSoftInputMode="adjustPan" />
+        <!--长按容器,右上角的容器设置,容器已打开-->
         <activity
             android:name=".locations.activities.LocationSettingsActivity"
-            android:windowSoftInputMode="adjustPan"
-            android:label="@string/settings" />
-        <activity android:name=".activities.LocationShortcutWidgetConfigActivity">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".activities.CancelTaskActivity"
-            android:excludeFromRecents="true"
-            android:theme="@style/Dialog"
-            android:label="@string/eds">
-            <intent-filter>
-                <action android:name="com.sovworks.eds.android.ACTION_CANCEL_TASK"/>
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".filemanager.activities.ImageViewerActivity"
-            android:label="@string/image_viewer"/>
-        <activity
-            android:name=".locations.activities.CloseLocationsActivity"
-            android:excludeFromRecents="true"/>
-        <activity
-            android:name=".locations.activities.OpenLocationsActivity"
-            android:excludeFromRecents="true"/>
-        <activity
-            android:name=".activities.VersionHistory"
-            android:label="@string/version_history"/>
+            android:label="@string/settings"
+            android:theme="@style/Theme.Material3.Default.NoActionBar"
+            android:windowSoftInputMode="adjustPan" />
+        <!--app设置-->
         <activity
             android:name=".settings.activities.ProgramSettingsActivity"
             android:label="@string/settings"
             android:launchMode="singleTop"
-            android:windowSoftInputMode="adjustPan"/>
+            android:theme="@style/Theme.Material3.Default.NoActionBar"
+            android:windowSoftInputMode="adjustPan" />
+        <!--版本历史-->
         <activity
-            android:name=".settings.activities.OpeningOptionsActivity"
-            android:label="@string/settings"
-            android:windowSoftInputMode="adjustPan"/>
-        <service android:name=".service.FileOpsService"/>
-        <service android:name=".service.LocationsService"/>
-        <receiver android:name=".widgets.LocationShortcutWidget"
-                  android:label="@string/eds_shortcut">
+            android:name=".activities.VersionHistory"
+            android:label="@string/version_history"
+            android:theme="@style/Theme.Material3.Default.NoActionBar" />
+        <!--桌面小挂件-->
+        <activity
+            android:name=".activities.LocationShortcutWidgetConfigActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Material3.Default.NoActionBar">
             <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+        <!--取消任务-->
+        <activity
+            android:name=".activities.CancelTaskActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:label="@string/eds"
+            android:theme="@style/Theme.Material3.Default">
+            <intent-filter>
+                <action android:name="com.sovworks.eds.android.ACTION_CANCEL_TASK" />
+            </intent-filter>
+        </activity>
+        <!--关于-->
+        <activity
+            android:name=".activities.AboutActivity"
+            android:label="@string/about"
+            android:theme="@style/Theme.Material3.Default.NoActionBar" />
+        <!--图片查看器-->
+        <activity
+            android:name=".filemanager.activities.ImageViewerActivity"
+            android:label="@string/image_viewer"
+            android:theme="@style/Theme.Material3.Default" />
+        <activity
+            android:name=".locations.activities.CloseLocationsActivity"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Material3.Default" />
+        <activity
+            android:name=".locations.activities.OpenLocationsActivity"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Material3.Default.NoActionBar" />
+
+        <service
+            android:name=".service.FileOpsService"
+            android:exported="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS" />
+
+        <service
+            android:name=".service.LocationsService"
+            android:exported="true"
+            android:foregroundServiceType="dataSync"
+            android:permission="android.permission.MANAGE_DOCUMENTS" />
+
+        <receiver
+            android:name=".widgets.LocationShortcutWidget"
+            android:exported="true"
+            android:label="@string/eds_shortcut">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <intent-filter>
-                <action android:name="com.sovworks.eds.android.BROADCAST_LOCATION_CHANGED"/>
-            </intent-filter>
-            <meta-data android:name="android.appwidget.provider"
-                       android:resource="@xml/widget_info"/>
-        </receiver>
-        <receiver android:name=".widgets.CloseAllContainersWidget"
-                  android:label="@string/close_all_containers">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.sovworks.eds.android.BROADCAST_LOCATION_CHANGED"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.sovworks.eds.android.BROADCAST_ALL_CONTAINERS_CLOSED"/>
+                <action android:name="com.sovworks.eds.android.BROADCAST_LOCATION_CHANGED" />
             </intent-filter>
 
-            <meta-data android:name="android.appwidget.provider"
-                       android:resource="@xml/close_all_containers_widget_info"/>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info" />
         </receiver>
+        <receiver
+            android:name=".widgets.CloseAllContainersWidget"
+            android:exported="true"
+            android:label="@string/close_all_containers">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.sovworks.eds.android.BROADCAST_LOCATION_CHANGED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.sovworks.eds.android.BROADCAST_ALL_CONTAINERS_CLOSED" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/close_all_containers_widget_info" />
+        </receiver>
+
+        <!--
+        这个属性会导致剪切板无法使用
+        android:permission="android.permission.MANAGE_DOCUMENTS"
+        -->
+        <provider
+            android:name=".providers.MainContentProvider"
+            android:authorities="com.sovworks.eds.android.providers.main.lite"
+            android:enabled="true"
+            android:exported="true"
+            android:grantUriPermissions="true">
+            <grant-uri-permission android:path="selection" />
+            <grant-uri-permission android:path="/" />
+        </provider>
+        <provider
+            android:name=".providers.ContainersDocumentProvider"
+            android:authorities="com.sovworks.eds.android.providers.documents.lite"
+            android:enabled="true"
+            android:exported="true"
+            android:grantUriPermissions="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS">
+            <!--suppress AndroidElementNotAllowed -->
+            <intent-filter>
+                <!--suppress AndroidElementNotAllowed -->
+                <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
+            </intent-filter>
+        </provider>
     </application>
 </manifest> 

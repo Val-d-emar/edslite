@@ -26,11 +26,10 @@
 
  This header file is an INTERNAL file which supports mode implementation
 */
-
+#include <string.h>
 #ifndef _MODE_HDR_H
 #define _MODE_HDR_H
 
-#include <string.h>
 #include <limits.h>
 
 #include "brg_endian.h"

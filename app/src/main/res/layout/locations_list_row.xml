@@ -1,20 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	android:orientation="horizontal"
-	android:background="@android:drawable/list_selector_background"
-	style="@style/LocationListRow"
-	tools:ignore="RtlSymmetry,UseCompoundDrawables" >
-		<ImageView
-			android:id="@android:id/icon"
-			style="@style/LocationListIcon"
-			android:contentDescription="@string/location_type"/>
-		<TextView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:id="@android:id/text1"
-			style="@style/LocationListText"/>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/FileListRow"
+    android:gravity="center_vertical"
+    android:minHeight="60dp">
+
+    <ImageView
+        android:id="@android:id/icon"
+        style="@style/FileIcon"
+        android:contentDescription="@string/location_type"
+        android:padding="5dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_lock" />
+
+    <TextView
+        android:id="@android:id/text1"
+        style="@style/FileName"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="12dp"
+        android:layout_weight="1"
+        tools:text="这里是内容" />
 </LinearLayout>

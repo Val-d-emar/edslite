@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <malloc.h>
 //#include <android/log.h>
-
+#include <string.h>
 #include <block_cipher.h>
 #include "aes.h"
 
