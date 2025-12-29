@@ -72,7 +72,7 @@ jobs:
           # cp -rn: рекурсивно, NO CLOBBER (не перезаписывать существующие файлы)
           # Копируем из /root/.gradle (где они лежат в образе) в рабочую папку
           # '|| true' чтобы не падать на мелких ошибках прав доступа
-          cp -rn /root/.gradle/. $GRADLE_USER_HOME/ || true
+          cp -r --update=none /root/.gradle/. $GRADLE_USER_HOME/ || true
           
           echo "Dependencies synced."
 
